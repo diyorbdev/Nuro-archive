@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nuro Archive — Research, Translated</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -84,27 +85,12 @@
     letter-spacing: -0.01em;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
   .logo-mark {
-    width: 22px; height: 22px;
-    position: relative;
-  }
-  .logo-mark::before, .logo-mark::after {
-    content: "";
-    position: absolute;
+    width: 30px; height: 30px;
     border-radius: 50%;
-  }
-  .logo-mark::before {
-    width: 22px; height: 22px;
-    border: 1.5px solid var(--gold);
-    top: 0; left: 0;
-  }
-  .logo-mark::after {
-    width: 6px; height: 6px;
-    background: var(--gold);
-    top: 8px; left: 8px;
-    box-shadow: 0 0 10px 2px var(--gold-glow);
+    display: block;
   }
   .logo span { color: var(--gold); }
 
@@ -570,7 +556,7 @@
   <canvas id="neuralCanvas"></canvas>
 
   <header>
-    <div class="logo"><span class="logo-mark"></span>Nuro <span>Archive</span></div>
+    <div class="logo"><img class="logo-mark" src="assets/logo.png" alt="Nuro logo">Nuro <span>Archive</span></div>
     <div class="header-right">
       <nav>
         <a href="https://t.me/nurobrain" target="_blank" data-i18n="nav.channel">Telegram Channel</a>
