@@ -487,6 +487,78 @@
     #neuralCanvas { opacity: 0.35; }
   }
 
+  /* ---------- Correspondence section ---------- */
+  .corr-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 32px 120px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 5;
+  }
+
+  .corr-header { max-width: 62ch; margin-bottom: 52px; }
+  .corr-header h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin-top: 18px;
+  }
+  .corr-header p {
+    margin-top: 18px;
+    color: var(--text-dim);
+    font-size: 1.05rem;
+  }
+
+  .corr-list { display: flex; flex-direction: column; }
+
+  .corr-item {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 32px;
+    padding: 30px 0;
+    border-top: 1px solid var(--border);
+  }
+  .corr-item:last-child { border-bottom: 1px solid var(--border); }
+
+  .corr-who .name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .corr-who .inst {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--text-dimmer);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .corr-what .topic-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    border: 1px solid var(--border-bright);
+    border-radius: 100px;
+    padding: 4px 12px;
+    margin-bottom: 12px;
+  }
+  .corr-what p {
+    color: #D3D0C4;
+    font-size: 0.98rem;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 720px) {
+    .corr-item { grid-template-columns: 1fr; gap: 10px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
@@ -545,6 +617,15 @@
   <div class="grid" id="grid"></div>
 </div>
 
+<div class="corr-section">
+  <div class="corr-header">
+    <div class="hero-eyebrow" data-i18n="corr.eyebrow">Direct from researchers</div>
+    <h2 data-i18n="corr.title">Real replies from the people who wrote the papers</h2>
+    <p data-i18n="corr.sub">Every article on this site started as a cold email. Here's who wrote back, and what they told us.</p>
+  </div>
+  <div class="corr-list" id="corrList"></div>
+</div>
+
 <div class="overlay" id="overlay">
   <div class="article-full" id="articleFull"></div>
 </div>
@@ -568,6 +649,9 @@ const I18N = {
     'footer.tagline': 'Nuro — a research-backed study platform for Uzbek students',
     'card.translation': 'Nuro digest',
     'card.read': 'Read',
+    'corr.eyebrow': 'Direct from researchers',
+    'corr.title': "Real replies from the people who wrote the papers",
+    'corr.sub': "Every article on this site started as a cold email. Here's who wrote back, and what they told us.",
   },
   uz: {
     'nav.channel': 'Telegram kanal',
@@ -580,6 +664,9 @@ const I18N = {
     'footer.tagline': "Nuro — o'zbek o'quvchilari uchun ilm-fanga asoslangan platforma",
     'card.translation': 'Nuro tarjimasi',
     'card.read': "O'qish",
+    'corr.eyebrow': "Tadqiqotchilardan bevosita",
+    'corr.title': "Maqolalarni yozgan olimlarning haqiqiy javoblari",
+    'corr.sub': "Saytdagi har bir maqola oddiy sovuq xat bilan boshlangan. Mana kim javob berdi va nima dedi.",
   }
 };
 
@@ -737,7 +824,99 @@ const ARTICLES = [
   }
 ];
 
-/* ============ State ============ */
+/* ============ Correspondence: real researcher replies ============ */
+const CORRESPONDENCE = [
+  {
+    name: "Dr. Jared Saletin",
+    inst: { en: "Brown University — Sleep & Memory Lab", uz: "Braun universiteti — Uyqu va xotira laboratoriyasi" },
+    topic: { en: "Memory discrimination", uz: "Xotira farqlanishi" },
+    text: {
+      en: "Author of the sleep-restriction study behind our memory article. Contacted directly with a question on his findings; his research forms the basis of the 'similar concepts' article on this site.",
+      uz: "Xotira maqolamiz asosidagi uyqu-cheklash tadqiqoti muallifi. To'g'ridan-to'g'ri savol bilan murojaat qilindi; uning tadqiqoti saytdagi \"o'xshash tushunchalar\" maqolasiga asos bo'ldi."
+    }
+  },
+  {
+    name: "Dr. Stijn Massar",
+    inst: { en: "National University of Singapore", uz: "Singapur Milliy universiteti (NUS)" },
+    topic: { en: "Bedtime procrastination", uz: "Yotishni kechiktirish" },
+    text: {
+      en: "Replied twice. Gave a full experimental protocol for testing whether bedtime-intention prompts improve sleep timing in teens — the basis for our 'writing down your bedtime intention' article.",
+      uz: "Ikki marta javob berdi. O'smirlarda \"yotish niyati\" eslatmalari uyqu vaqtiga ta'sir qilishini tekshirish uchun to'liq tajriba dizaynini berdi — bu saytimizdagi tegishli maqolaga asos bo'ldi."
+    }
+  },
+  {
+    name: "Dr. Ju Lynn Ong",
+    inst: { en: "National University of Singapore", uz: "Singapur Milliy universiteti (NUS)" },
+    topic: { en: "Sleep thresholds", uz: "Uyqu chegaralari" },
+    text: {
+      en: "Shared concrete, usable thresholds for sleep duration and cognitive performance — the 8-hour and 6.5-hour markers used throughout Nuro's sleep-tracking guidance.",
+      uz: "Uyqu davomiyligi va kognitiv faoliyat bo'yicha aniq, amaliy chegaralarni taqdim etdi — 8 soat va 6.5 soatlik ko'rsatkichlar Nuroning uyqu kuzatish tavsiyalarida qo'llaniladi."
+    }
+  },
+  {
+    name: "Dr. Nilüfer Oral",
+    inst: { en: "NUS Centre for International Law · UN International Law Commission", uz: "NUS Xalqaro huquq markazi · BMT Xalqaro huquq komissiyasi" },
+    topic: { en: "International law & statehood", uz: "Xalqaro huquq va davlatchilik" },
+    text: {
+      en: "Replied personally while on leave. Explained how international law extends existing doctrine by analogy rather than inventing new rules — a framework now shaping a separate research thread on Central Asian statehood.",
+      uz: "Ta'tilda bo'lishiga qaramay shaxsan javob berdi. Xalqaro huquq yangi qoidalar yaratish o'rniga mavjud doktrinani analogiya orqali kengaytirishini tushuntirdi — bu Markaziy Osiyo davlatchiligi bo'yicha alohida tadqiqot yo'nalishiga asos bo'lmoqda."
+    }
+  },
+  {
+    name: "iCanStudy Team (for Justin Sung)",
+    inst: { en: "Learning science coaching platform", uz: "O'qitish ilmiy platformasi" },
+    topic: { en: "Active recall", uz: "Faol eslash" },
+    text: {
+      en: "Education coordinator Lyza engaged seriously with a question on detecting shallow active recall, and forwarded an interview request to the team.",
+      uz: "Ta'lim koordinatori Lyza faol eslashning \"sayoz\" turini aniqlash bo'yicha savolga jiddiy javob berdi va intervyu so'rovini jamoaga uzatdi."
+    }
+  },
+  {
+    name: "Prof. Maria Adele Carrai",
+    inst: { en: "University of Oxford — Mapping Global China", uz: "Oksford universiteti — Mapping Global China loyihasi" },
+    topic: { en: "China–Central Asia relations", uz: "Xitoy–Markaziy Osiyo munosabatlari" },
+    text: {
+      en: "Assigned an active research task: mapping Chinese company activity in Uzbekistan. Also invited us to attend her upcoming lectures in Tashkent.",
+      uz: "Aniq tadqiqot vazifasini berdi: O'zbekistondagi xitoy kompaniyalari faoliyatini xaritalash. Shuningdek, Toshkentdagi yaqinlashib kelayotgan ma'ruzalariga taklif qildi."
+    }
+  },
+  {
+    name: "Prof. Armin Cuyvers",
+    inst: { en: "Leiden University — EU Constitutional Law", uz: "Leyden universiteti — EI konstitutsiyaviy huquqi" },
+    topic: { en: "Comparative regionalism", uz: "Qiyosiy regionalizm" },
+    text: {
+      en: "Suggested that regional blocs like the EAEU should be assessed by narrow, technocratic 'islands' of shared governance rather than by comparison to the full EU model.",
+      uz: "EAEU kabi mintaqaviy bloklarni to'liq EI modeli bilan solishtirish o'rniga, tor, texnokratik boshqaruv \"orollari\" orqali baholashni taklif qildi."
+    }
+  },
+  {
+    name: "Dr. Louise David",
+    inst: { en: "Maastricht University", uz: "Maastrixt universiteti" },
+    topic: { en: "Desirable difficulty", uz: "Foydali qiyinchilik" },
+    text: {
+      en: "Explained the 'experienced vs. actual learning paradox' — why effortful studying often feels like failure even when it's working — the basis for our study-habits article.",
+      uz: "\"His qilingan va haqiqiy o'rganish paradoksi\"ni tushuntirdi — nega qiyin o'qish usuli ishlab turgan bo'lsa ham, muvaffaqiyatsizlikdek tuyulishini. Bu saytimizdagi o'quv odatlari maqolasiga asos bo'ldi."
+    }
+  },
+];
+
+function renderCorrespondence() {
+  const list = document.getElementById('corrList');
+  list.innerHTML = CORRESPONDENCE.map(c => `
+    <div class="corr-item">
+      <div class="corr-who">
+        <div class="name">${c.name}</div>
+        <div class="inst">${c.inst[currentLang]}</div>
+      </div>
+      <div class="corr-what">
+        <span class="topic-tag">${c.topic[currentLang]}</span>
+        <p>${c.text[currentLang]}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+
 let currentLang = 'en';
 let currentFilter = 'all';
 
@@ -821,6 +1000,7 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
       if (cat !== 'all') p.textContent = CATEGORY_META[cat][currentLang];
     });
     renderGrid();
+    renderCorrespondence();
     if (document.getElementById('overlay').classList.contains('open')) {
       closeArticle();
     }
@@ -829,6 +1009,7 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
 
 applyStaticI18n();
 renderGrid();
+renderCorrespondence();
 
 /* ============ 3D Brain Model (Three.js, procedural — no external assets) ============ */
 (function initBrainModel() {
