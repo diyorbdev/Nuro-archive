@@ -545,6 +545,88 @@
     .corr-item { grid-template-columns: 1fr; gap: 10px; }
   }
 
+  /* ---------- PDF Papers section ---------- */
+  .papers-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px 130px;
+  }
+
+  .papers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .paper-card {
+    background: linear-gradient(160deg, var(--bg-card-solid), #101216);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .paper-card:hover { border-color: var(--border-bright); transform: translateY(-3px); }
+
+  .paper-icon {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  }
+
+  .paper-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 1.12rem;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .paper-card .authors {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--text-dimmer);
+    margin-bottom: 14px;
+  }
+
+  .paper-card .blurb {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    flex-grow: 1;
+    margin-bottom: 20px;
+  }
+
+  .paper-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border: 1px solid var(--border-bright);
+    border-radius: 100px;
+    color: var(--text);
+    text-decoration: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .paper-download:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #08090B;
+    font-weight: 600;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
@@ -596,6 +678,7 @@
       <button class="filter-pill" data-cat="sleep" data-i18n="filter.sleep">Sleep</button>
       <button class="filter-pill" data-cat="memory" data-i18n="filter.memory">Memory</button>
       <button class="filter-pill" data-cat="habit" data-i18n="filter.habit">Habits & Discipline</button>
+      <button class="filter-pill" data-cat="focus" data-i18n="filter.focus">Attention & Cognition</button>
     </div>
     <div class="filter-count" id="filterCount"></div>
   </div>
@@ -610,6 +693,15 @@
     <p data-i18n="corr.sub">Every article on this site started as a cold email. Here's who wrote back, and what they told us.</p>
   </div>
   <div class="corr-list" id="corrList"></div>
+</div>
+
+<div class="papers-section">
+  <div class="corr-header">
+    <div class="hero-eyebrow" data-i18n="papers.eyebrow">Primary sources</div>
+    <h2 data-i18n="papers.title">Read the original papers, free and unedited</h2>
+    <p data-i18n="papers.sub">These are the full, open-access PDFs — not summaries. Download and read the actual research.</p>
+  </div>
+  <div class="papers-grid" id="papersGrid"></div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -631,13 +723,17 @@ const I18N = {
     'hero.sub': "Nuro reads the papers so you don't have to — turning peer-reviewed neuroscience into short, practical reads on sleep, memory, and focus.",
     'hero.stat1': 'Articles', 'hero.stat2': 'Researchers cited', 'hero.stat3': 'Languages',
     'hero.scroll': 'SCROLL',
-    'filter.all': 'All', 'filter.sleep': 'Sleep', 'filter.memory': 'Memory', 'filter.habit': 'Habits & Discipline',
+    'filter.all': 'All', 'filter.sleep': 'Sleep', 'filter.memory': 'Memory', 'filter.habit': 'Habits & Discipline', 'filter.focus': 'Attention & Cognition',
     'footer.tagline': 'Nuro — a research-backed study platform for Uzbek students',
     'card.translation': 'Nuro digest',
     'card.read': 'Read',
     'corr.eyebrow': 'Direct from researchers',
     'corr.title': "Real replies from the people who wrote the papers",
     'corr.sub': "Every article on this site started as a cold email. Here's who wrote back, and what they told us.",
+    'papers.eyebrow': 'Primary sources',
+    'papers.title': 'Read the original papers, free and unedited',
+    'papers.sub': "These are the full, open-access PDFs — not summaries. Download and read the actual research.",
+    'paper.download': 'Download PDF',
   },
   uz: {
     'nav.channel': 'Telegram kanal',
@@ -646,13 +742,17 @@ const I18N = {
     'hero.sub': "Nuro ilmiy maqolalarni siz o'rniga o'qiydi — va ularni uyqu, xotira va e'tibor haqidagi qisqa, amaliy maqolalarga aylantiradi.",
     'hero.stat1': 'Maqola', 'hero.stat2': 'Tadqiqotchi', 'hero.stat3': 'Til',
     'hero.scroll': 'PASTGA',
-    'filter.all': 'Barchasi', 'filter.sleep': 'Uyqu', 'filter.memory': 'Xotira', 'filter.habit': 'Odat va intizom',
+    'filter.all': 'Barchasi', 'filter.sleep': 'Uyqu', 'filter.memory': 'Xotira', 'filter.habit': 'Odat va intizom', 'filter.focus': 'Diqqat va bilish',
     'footer.tagline': "Nuro — o'zbek o'quvchilari uchun ilm-fanga asoslangan platforma",
     'card.translation': 'Nuro tarjimasi',
     'card.read': "O'qish",
     'corr.eyebrow': "Tadqiqotchilardan bevosita",
     'corr.title': "Maqolalarni yozgan olimlarning haqiqiy javoblari",
     'corr.sub': "Saytdagi har bir maqola oddiy sovuq xat bilan boshlangan. Mana kim javob berdi va nima dedi.",
+    'papers.eyebrow': "Asl manbalar",
+    'papers.title': "Original maqolalarni bepul, tahrirsiz o'qing",
+    'papers.sub': "Bular to'liq, ochiq (bepul) PDF fayllar — qisqartma emas. Yuklab oling va asl tadqiqotni o'qing.",
+    'paper.download': "PDF yuklab olish",
   }
 };
 
@@ -660,6 +760,7 @@ const CATEGORY_META = {
   sleep: { color: '#FFFFFF', en: 'Sleep', uz: 'Uyqu' },
   memory: { color: '#B4B5B9', en: 'Memory', uz: 'Xotira' },
   habit: { color: '#7C7D82', en: 'Habits & Discipline', uz: 'Odat va intizom' },
+  focus: { color: '#D8D9DC', en: 'Attention & Cognition', uz: 'Diqqat va bilish' },
 };
 
 /* ============ Articles: bilingual content ============ */
@@ -887,6 +988,55 @@ const CORRESPONDENCE = [
 ];
 
 function renderCorrespondence() {
+
+/* ============ Downloadable original papers (PDF) ============ */
+const PAPERS = [
+  {
+    file: "pdfs/saletin-ohora-2026-adolescent-sleep.pdf",
+    tag: "SLEEP",
+    authors: "Kathleen P. O'Hora & Jared M. Saletin — Brown University, 2026",
+    title: { en: "Adolescent sleep: a bulwark for healthy brain development", uz: "O'smirlar uyqusi: sog'lom miya rivojlanishining tayanchi" },
+    blurb: {
+      en: "A 2026 editorial on how adolescent sleep loss intersects with critical brain maturation — the same lab behind our memory-discrimination article.",
+      uz: "2026-yilgi tahririy maqola: o'smirlarda uyqu yetishmasligi muhim miya rivojlanish davri bilan qanday kesishishi haqida — bu xotira maqolamiz asosidagi laboratoriya."
+    }
+  },
+  {
+    file: "pdfs/gao-sakhnini-2025-procrastination.pdf",
+    tag: "ARXIV",
+    authors: "Alice Gao & Victoria Sakhnini — University of Toronto / Waterloo, 2025",
+    title: { en: "Reducing Procrastination on Programming Assignments via Optional Early Feedback", uz: "Ixtiyoriy erta fikr-mulohaza orqali topshiriqlarni kechiktirishni kamaytirish" },
+    blurb: {
+      en: "A real classroom intervention: optional early deadlines with automated feedback (no grade penalty) measurably reduced last-minute submissions.",
+      uz: "Haqiqiy sinf tajribasi: baholanmaydigan, ixtiyoriy erta muddatlar va avtomatik fikr-mulohaza oxirgi daqiqada topshirishni sezilarli kamaytirdi."
+    }
+  },
+  {
+    file: "pdfs/gross-2024-phd-procrastination.pdf",
+    tag: "IJDS",
+    authors: "Samuel Gross et al. — Goethe University Frankfurt, 2024",
+    title: { en: "The Procrastinating PhD Student: A Latent Profile Analysis", uz: "Kechiktiruvchi PhD talaba: yashirin profil tahlili" },
+    blurb: {
+      en: "Identifies distinct 'types' of procrastinators among graduate students — useful for recognizing your own specific pattern rather than a generic label.",
+      uz: "Aspirantlar orasida kechiktirishning turli \"turlari\"ni aniqlaydi — umumiy yorliq o'rniga o'zingizning aniq naqshingizni tanib olish uchun foydali."
+    }
+  },
+];
+
+function renderPapers() {
+  const grid = document.getElementById('papersGrid');
+  grid.innerHTML = PAPERS.map(p => `
+    <div class="paper-card">
+      <div class="paper-icon">PDF</div>
+      <h3>${p.title[currentLang]}</h3>
+      <div class="authors">${p.authors}</div>
+      <p class="blurb">${p.blurb[currentLang]}</p>
+      <a class="paper-download" href="${p.file}" download>${t('paper.download')} ↓</a>
+    </div>
+  `).join('');
+}
+
+function renderCorrespondence() {
   const list = document.getElementById('corrList');
   list.innerHTML = CORRESPONDENCE.map(c => `
     <div class="corr-item">
@@ -987,6 +1137,7 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
     });
     renderGrid();
     renderCorrespondence();
+    renderPapers();
     if (document.getElementById('overlay').classList.contains('open')) {
       closeArticle();
     }
@@ -996,6 +1147,7 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
 applyStaticI18n();
 renderGrid();
 renderCorrespondence();
+renderPapers();
 
 /* ============ 3D Brain Model (Three.js, procedural — no external assets) ============ */
 (function initBrainModel() {
