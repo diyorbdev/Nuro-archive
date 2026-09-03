@@ -23,6 +23,11 @@
     --teal: #DCDDDA;
     --border: #232427;
     --border-bright: #3A3B3F;
+    --glass-bg: rgba(255, 255, 255, 0.045);
+    --glass-bg-hover: rgba(255, 255, 255, 0.075);
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --glass-border-bright: rgba(255, 255, 255, 0.16);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.06);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -65,17 +70,24 @@
 
   /* ---------- Header ---------- */
   header {
-    position: relative;
-    z-index: 10;
-    padding: 28px 32px 0;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
+    position: sticky;
+    top: 16px;
+    z-index: 50;
+    padding: 16px 28px;
+    max-width: 1150px;
+    width: calc(100% - 32px);
+    margin: 16px auto 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    box-shadow: var(--glass-shadow);
   }
 
   .logo {
@@ -110,7 +122,9 @@
 
   .lang-toggle {
     display: flex;
-    border: 1px solid var(--border-bright);
+    border: 1px solid var(--glass-border-bright);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
     border-radius: 100px;
     overflow: hidden;
     font-family: 'IBM Plex Mono', monospace;
@@ -233,7 +247,7 @@
 
   /* ---------- Filters ---------- */
   .filters-section {
-    background: var(--bg);
+    background: linear-gradient(180deg, var(--bg) 0%, #0D0F13 100%);
     position: relative;
     z-index: 5;
   }
@@ -254,13 +268,14 @@
     font-size: 0.8rem;
     padding: 9px 18px;
     border-radius: 100px;
-    border: 1px solid var(--border);
-    background: transparent;
+    border: 1px solid var(--glass-border-bright);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
     color: var(--text-dim);
     cursor: pointer;
     transition: all 0.2s;
   }
-  .filter-pill:hover { border-color: var(--gold); color: var(--text); }
+  .filter-pill:hover { border-color: var(--gold); color: var(--text); background: var(--glass-bg-hover); }
   .filter-pill.active {
     background: var(--gold);
     border-color: var(--gold);
@@ -285,9 +300,9 @@
   }
 
   .card {
-    background: linear-gradient(160deg, var(--bg-card-solid), #12151F);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
     padding: 30px;
     cursor: pointer;
     transition: background 0.25s, transform 0.25s, border-color 0.25s, box-shadow 0.25s;
@@ -295,6 +310,9 @@
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    box-shadow: var(--glass-shadow);
   }
   .card::before {
     content: "";
@@ -304,10 +322,10 @@
     background: linear-gradient(90deg, transparent, var(--card-accent, var(--gold)), transparent);
   }
   .card:hover {
-    background: linear-gradient(160deg, var(--bg-card-hover), #171B28);
-    border-color: var(--border-bright);
-    transform: translateY(-3px);
-    box-shadow: 0 20px 40px -20px rgba(0,0,0,0.6), 0 0 0 1px var(--card-accent, var(--gold)) inset;
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-bright);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -20px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px var(--card-accent, var(--gold));
   }
 
   .card-tag {
@@ -383,21 +401,24 @@
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   .article-full {
-    background: linear-gradient(160deg, #171B28, #12151F);
-    border: 1px solid var(--border-bright);
-    border-radius: 20px;
+    background: var(--glass-bg-hover);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 22px;
     max-width: 720px;
     width: 100%;
     padding: 52px;
     position: relative;
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);
   }
 
   .close-btn {
     position: absolute;
     top: 24px; right: 24px;
-    background: none;
-    border: 1px solid var(--border-bright);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border-bright);
+    backdrop-filter: blur(10px);
     color: var(--text-dim);
     width: 36px; height: 36px;
     border-radius: 50%;
@@ -559,15 +580,18 @@
   }
 
   .paper-card {
-    background: linear-gradient(160deg, var(--bg-card-solid), #101216);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
     padding: 28px;
     display: flex;
     flex-direction: column;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: var(--glass-shadow);
   }
-  .paper-card:hover { border-color: var(--border-bright); transform: translateY(-3px); }
+  .paper-card:hover { border-color: var(--glass-border-bright); background: var(--glass-bg-hover); transform: translateY(-4px); }
 
   .paper-icon {
     width: 40px; height: 40px;
