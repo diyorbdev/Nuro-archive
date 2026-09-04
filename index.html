@@ -5,1402 +5,475 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nuro Archive — Research, Translated</title>
 <link rel="icon" type="image/png" href="assets/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #08090B;
-    --bg-card: #16161824;
-    --bg-card-solid: #17181B;
-    --bg-card-hover: #202226;
-    --text: #F4F4F2;
-    --text-dim: #9A9B9E;
-    --text-dimmer: #5C5D61;
-    --gold: #F0F0EE;
-    --gold-glow: #FFFFFF3A;
-    --red: #B8B9BC;
-    --teal: #DCDDDA;
-    --border: #232427;
-    --border-bright: #3A3B3F;
-    --glass-bg: rgba(255, 255, 255, 0.045);
-    --glass-bg-hover: rgba(255, 255, 255, 0.075);
-    --glass-border: rgba(255, 255, 255, 0.09);
-    --glass-border-bright: rgba(255, 255, 255, 0.16);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+    --bg: #F4F5F7;
+    --bg-card: #FFFFFF;
+    --sidebar-bg: #14161A;
+    --text: #14161A;
+    --text-dim: #6B7280;
+    --text-dimmer: #9CA3AF;
+    --accent: #2FD4A0;
+    --accent-dark: #1CB98A;
+    --accent-tint: #E7FBF4;
+    --border: #E7E8EC;
+    --shadow-sm: 0 1px 2px rgba(20,22,26,0.04), 0 1px 3px rgba(20,22,26,0.06);
+    --shadow-md: 0 4px 16px rgba(20,22,26,0.06), 0 2px 6px rgba(20,22,26,0.05);
+    --shadow-lg: 0 20px 50px rgba(20,22,26,0.10);
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  a { color: inherit; }
-
-  ::selection { background: var(--gold-glow); }
-
-  /* ---------- 3D canvas ---------- */
-  #neuralCanvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 0;
-    opacity: 0.7;
-    pointer-events: none;
-  }
-
-  .hero-wrap {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, #1C1D20 0%, transparent 60%),
-      var(--bg);
-  }
-
-  /* ---------- Header ---------- */
-  header {
-    position: sticky;
-    top: 16px;
-    z-index: 50;
-    padding: 16px 28px;
-    max-width: 1150px;
-    width: calc(100% - 32px);
-    margin: 16px auto 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    box-shadow: var(--glass-shadow);
-  }
-
-  .logo {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 1.5rem;
-    letter-spacing: -0.01em;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .logo-mark {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    display: block;
-  }
-  .logo span { color: var(--gold); }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-  }
-
-  nav a {
-    text-decoration: none;
-    color: var(--text-dim);
-    font-size: 0.92rem;
-    transition: color 0.2s;
-  }
-  nav a:hover, nav a:focus-visible { color: var(--text); }
-
-  .lang-toggle {
-    display: flex;
-    border: 1px solid var(--glass-border-bright);
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border-radius: 100px;
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-  }
-  .lang-toggle button {
-    background: transparent;
-    border: none;
-    color: var(--text-dim);
-    padding: 7px 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .lang-toggle button.active {
-    background: var(--gold);
-    color: #0B0D14;
-    font-weight: 600;
-  }
-
-  /* ---------- Hero ---------- */
-  .hero {
-    position: relative;
-    z-index: 5;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 100px 32px 60px;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .hero-eyebrow {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 22px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .hero-eyebrow::before {
-    content: "";
-    width: 24px; height: 1px;
-    background: var(--gold);
-  }
-
-  .hero h1 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: clamp(2.6rem, 6vw, 4.6rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    max-width: 15ch;
-  }
-  .hero h1 em {
-    font-style: normal;
-    font-weight: 600;
-    color: var(--gold);
-  }
-
-  .hero p {
-    margin-top: 26px;
-    color: var(--text-dim);
-    font-size: 1.15rem;
-    max-width: 46ch;
-  }
-
-  .hero-stats {
-    display: flex;
-    margin-top: 52px;
-  }
-  .hero-stat { margin-right: 44px; }
-  .hero-stat .num {
-    font-family: 'Inter', sans-serif;
-    font-size: 2.1rem;
-    color: var(--text);
-    font-weight: 500;
-  }
-  .hero-stat .label {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.74rem;
-    color: var(--text-dimmer);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 4px;
-  }
-
-  .scroll-hint {
-    position: absolute;
-    bottom: 36px;
-    left: 32px;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.72rem;
-    color: var(--text-dimmer);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 5;
-  }
-  .scroll-hint .line {
-    width: 1px; height: 36px;
-    background: linear-gradient(var(--gold), transparent);
-    animation: scrollpulse 2s ease-in-out infinite;
-  }
-  @keyframes scrollpulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-  }
-
-  /* ---------- Thread divider ---------- */
-  .thread-divider {
-    width: 100%;
-    height: 32px;
-    display: block;
-  }
-
-  /* ---------- Topics grid (Huberman-style browse) ---------- */
-  .topics-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 50px 32px 10px;
-    position: relative;
-    z-index: 5;
-  }
-  .topics-header {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-dimmer);
-    margin-bottom: 18px;
-  }
-  .topics-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .topic-chip {
-    padding: 10px 18px;
-    border-radius: 100px;
-    border: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .topic-chip:hover {
-    background: var(--glass-bg-hover);
-    border-color: var(--topic-color, var(--gold));
-    color: var(--text);
-  }
-  .topic-chip .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--topic-color, var(--gold));
-  }
-
-  /* ---------- Featured strip (Huberman-style) ---------- */
-  .featured-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 46px 32px 0;
-    position: relative;
-    z-index: 5;
-  }
-  .featured-header {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-dimmer);
-    margin-bottom: 18px;
-  }
-  .featured-strip {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-  }
-  .featured-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 22px;
-    backdrop-filter: blur(16px) saturate(150%);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .featured-card:hover { background: var(--glass-bg-hover); transform: translateY(-3px); border-color: var(--glass-border-bright); }
-  .featured-card .meta-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--card-accent, var(--gold));
-    margin-bottom: 10px;
-  }
-  .featured-card .meta-row .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-  .featured-card h4 {
-    font-size: 1.02rem;
-    font-weight: 500;
-    line-height: 1.35;
-    color: var(--text);
-  }
-
-  /* ---------- Mid-page CTA (Huberman newsletter-style) ---------- */
-  .cta-section {
-    max-width: 1200px;
-    margin: 60px auto 0;
-    padding: 0 32px;
-    position: relative;
-    z-index: 5;
-  }
-  .cta-box {
-    background: var(--glass-bg-hover);
-    border: 1px solid var(--glass-border-bright);
-    border-radius: 22px;
-    padding: 46px;
-    text-align: center;
-    backdrop-filter: blur(20px) saturate(150%);
-    box-shadow: var(--glass-shadow);
-  }
-  .cta-box h3 {
-    font-size: 1.6rem;
-    font-weight: 500;
-    margin-bottom: 12px;
-  }
-  .cta-box p {
-    color: var(--text-dim);
-    max-width: 46ch;
-    margin: 0 auto 24px;
-  }
-  .cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 13px 28px;
-    background: var(--gold);
-    color: #08090B;
-    border-radius: 100px;
-    font-weight: 600;
-    font-size: 0.92rem;
-    text-decoration: none;
-    transition: transform 0.2s;
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--accent-tint); color: var(--accent-dark); }
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 76px; background: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; padding: 22px 0; z-index: 100; }
+  .sidebar-logo { width: 40px; height: 40px; border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
+  .sidebar-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+  .sidebar-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #6B7280; cursor: pointer; transition: all 0.2s; }
+  .sidebar-icon:hover { background: #23262C; color: #E7E8EC; }
+  .sidebar-icon.active { background: var(--accent); color: #0B1210; }
+  .sidebar-icon svg { width: 20px; height: 20px; }
+  .sidebar-bottom { display: flex; flex-direction: column; gap: 10px; }
+  .main { margin-left: 76px; min-height: 100vh; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 26px 40px; gap: 20px; }
+  .search-box { flex: 1; max-width: 420px; display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 16px; box-shadow: var(--shadow-sm); }
+  .search-box svg { width: 16px; height: 16px; color: var(--text-dimmer); flex-shrink: 0; }
+  .search-box input { border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--text); width: 100%; background: transparent; }
+  .search-box input::placeholder { color: var(--text-dimmer); }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .lang-toggle { display: flex; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .lang-toggle button { background: transparent; border: none; padding: 9px 15px; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-dimmer); cursor: pointer; transition: all 0.15s; }
+  .lang-toggle button.active { background: var(--sidebar-bg); color: #fff; }
+  .telegram-pill { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 9px 16px; font-size: 0.82rem; font-weight: 500; color: var(--text); box-shadow: var(--shadow-sm); transition: all 0.15s; }
+  .telegram-pill:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .hero { padding: 20px 40px 8px; }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-tint); color: var(--accent-dark); font-size: 0.76rem; font-weight: 600; padding: 6px 14px; border-radius: 100px; margin-bottom: 22px; }
+  .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-dark); }
+  .hero h1 { font-size: clamp(2.2rem, 4.4vw, 3.4rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.08; max-width: 14ch; color: var(--text); }
+  .hero p { margin-top: 18px; color: var(--text-dim); font-size: 1.05rem; max-width: 52ch; }
+  .stat-row { display: flex; gap: 14px; padding: 32px 40px 8px; flex-wrap: wrap; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; min-width: 130px; box-shadow: var(--shadow-sm); }
+  .stat-card .num { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; }
+  .stat-card .label { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+  .section { padding: 44px 40px 8px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .section-head h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .section-head .sub { color: var(--text-dim); font-size: 0.9rem; }
+  .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-pill { font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 500; padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
+  .filter-pill:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .filter-pill.active { background: var(--sidebar-bg); border-color: var(--sidebar-bg); color: #fff; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+  .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--accent); }
+  .card-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--tag-color, var(--accent-dark)); background: var(--tag-bg, var(--accent-tint)); padding: 5px 11px; border-radius: 100px; margin-bottom: 14px; width: fit-content; }
+  .card h3 { font-size: 1.08rem; font-weight: 600; line-height: 1.35; margin-bottom: 10px; letter-spacing: -0.01em; }
+  .card p.excerpt { color: var(--text-dim); font-size: 0.88rem; flex-grow: 1; margin-bottom: 16px; }
+  .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-dimmer); padding-top: 14px; border-top: 1px solid var(--border); }
+  .card-meta .read { color: var(--accent-dark); font-weight: 600; }
+  .corr-list { display: flex; flex-direction: column; gap: 12px; }
+  .corr-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; box-shadow: var(--shadow-sm); }
+  .corr-who .name { font-weight: 600; font-size: 0.98rem; }
+  .corr-who .inst { color: var(--text-dimmer); font-size: 0.78rem; margin-top: 4px; }
+  .corr-what .topic-tag { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--accent-dark); background: var(--accent-tint); padding: 4px 10px; border-radius: 100px; margin-bottom: 8px; }
+  .corr-what p { color: var(--text-dim); font-size: 0.9rem; }
+  @media (max-width: 720px) { .corr-item { grid-template-columns: 1fr; gap: 8px; } }
+  .papers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .paper-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: all 0.2s; }
+  .paper-card:hover { box-shadow: var(--shadow-md); }
+  .paper-icon { width: 38px; height: 38px; background: var(--sidebar-bg); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; margin-bottom: 16px; }
+  .paper-card h4 { font-size: 0.98rem; font-weight: 600; line-height: 1.3; margin-bottom: 8px; }
+  .paper-card .authors { font-size: 0.74rem; color: var(--text-dimmer); margin-bottom: 12px; }
+  .paper-card .blurb { color: var(--text-dim); font-size: 0.85rem; flex-grow: 1; margin-bottom: 18px; }
+  .paper-download { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; background: var(--accent); color: #0B1210; border-radius: 10px; font-weight: 600; font-size: 0.82rem; transition: all 0.15s; }
+  .paper-download:hover { background: var(--accent-dark); color: #fff; }
+  .cta-box { background: var(--sidebar-bg); border-radius: 22px; padding: 46px; text-align: center; color: #fff; }
+  .cta-box h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
+  .cta-box p { color: #A3A7AE; max-width: 44ch; margin: 0 auto 22px; }
+  .cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px; background: var(--accent); color: #0B1210; border-radius: 100px; font-weight: 700; font-size: 0.9rem; transition: transform 0.15s; }
   .cta-btn:hover { transform: scale(1.04); }
-
-  @media (max-width: 780px) {
-    .featured-strip { grid-template-columns: 1fr; }
-  }
-
-
-  .filters-section {
-    background: linear-gradient(180deg, var(--bg) 0%, #0D0F13 100%);
-    position: relative;
-    z-index: 5;
-  }
-  .filters {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 32px 0;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .filter-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-
-  .filter-pill {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    padding: 9px 18px;
-    border-radius: 100px;
-    border: 1px solid var(--glass-border-bright);
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .filter-pill:hover { border-color: var(--gold); color: var(--text); background: var(--glass-bg-hover); }
-  .filter-pill.active {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: #0B0D14;
-    font-weight: 600;
-  }
-
-  .filter-count {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    color: var(--text-dimmer);
-  }
-
-  /* ---------- Article grid ---------- */
-  .grid {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 32px 32px 140px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 22px;
-  }
-
-  .card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 18px;
-    padding: 30px;
-    cursor: pointer;
-    transition: background 0.25s, transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(18px) saturate(150%);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
-    box-shadow: var(--glass-shadow);
-  }
-  .card::before {
-    content: "";
-    position: absolute;
-    top: -1px; left: 24px; right: 24px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--card-accent, var(--gold)), transparent);
-  }
-  .card:hover {
-    background: var(--glass-bg-hover);
-    border-color: var(--glass-border-bright);
-    transform: translateY(-4px);
-    box-shadow: 0 24px 48px -20px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px var(--card-accent, var(--gold));
-  }
-
-  .card-tag {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--card-accent, var(--gold));
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-tag::before {
-    content: "";
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--card-accent, var(--gold));
-    box-shadow: 0 0 8px 1px var(--card-accent, var(--gold));
-  }
-
-  .card h2 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 1.34rem;
-    line-height: 1.28;
-    margin-bottom: 14px;
-    letter-spacing: -0.01em;
-  }
-
-  .card p.excerpt {
-    color: var(--text-dim);
-    font-size: 0.95rem;
-    flex-grow: 1;
-    margin-bottom: 22px;
-  }
-
-  .card-meta {
-    font-size: 0.8rem;
-    color: var(--text-dimmer);
-    border-top: 1px solid var(--border);
-    padding-top: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .card-meta .read {
-    color: var(--gold);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: gap 0.2s;
-  }
-  .card:hover .card-meta .read { gap: 10px; }
-
-  /* ---------- Modal ---------- */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 6, 10, 0.88);
-    backdrop-filter: blur(6px);
-    display: none;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 60px 20px;
-    overflow-y: auto;
-    z-index: 100;
-  }
-  .overlay.open { display: flex; animation: fadeIn 0.25s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .article-full {
-    background: var(--glass-bg-hover);
-    border: 1px solid var(--glass-border-bright);
-    border-radius: 22px;
-    max-width: 720px;
-    width: 100%;
-    padding: 52px;
-    position: relative;
-    backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);
-  }
-
-  .close-btn {
-    position: absolute;
-    top: 24px; right: 24px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border-bright);
-    backdrop-filter: blur(10px);
-    color: var(--text-dim);
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  .close-btn:hover { border-color: var(--gold); color: var(--gold); transform: rotate(90deg); }
-
-  .article-full .card-tag { margin-bottom: 20px; }
-
-  .article-full h2 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 2rem;
-    line-height: 1.2;
-    margin-bottom: 24px;
-    max-width: 24ch;
-    letter-spacing: -0.015em;
-  }
-
-  .article-full .full-body p {
-    margin-bottom: 17px;
-    color: #D3D0C4;
-    font-size: 1.02rem;
-  }
-
-  .article-full .source {
-    margin-top: 30px;
-    padding-top: 22px;
-    border-top: 1px solid var(--border);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    color: var(--text-dimmer);
-  }
-
-  /* ---------- Footer ---------- */
-  footer {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 48px 32px 70px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    position: relative;
-    z-index: 5;
-  }
-  footer .tg-link {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    color: var(--gold);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: gap 0.2s;
-  }
-  footer .tg-link:hover { gap: 12px; }
-  footer .fine {
-    color: var(--text-dimmer);
-    font-size: 0.82rem;
-  }
-
-  @media (max-width: 640px) {
-    .hero-stats { gap: 28px; flex-wrap: wrap; }
-    .article-full { padding: 34px 24px; }
-    #neuralCanvas { opacity: 0.35; }
-  }
-
-  /* ---------- Correspondence section ---------- */
-  .corr-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 100px 32px 120px;
-    border-top: 1px solid var(--border);
-    position: relative;
-    z-index: 5;
-  }
-
-  .corr-header { max-width: 62ch; margin-bottom: 52px; }
-  .corr-header h2 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
-    line-height: 1.15;
-    letter-spacing: -0.015em;
-    margin-top: 18px;
-  }
-  .corr-header p {
-    margin-top: 18px;
-    color: var(--text-dim);
-    font-size: 1.05rem;
-  }
-
-  .corr-list { display: flex; flex-direction: column; }
-
-  .corr-item {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 32px;
-    padding: 30px 0;
-    border-top: 1px solid var(--border);
-  }
-  .corr-item:last-child { border-bottom: 1px solid var(--border); }
-
-  .corr-who .name {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.15rem;
-    font-weight: 500;
-    color: var(--text);
-  }
-  .corr-who .inst {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.76rem;
-    color: var(--text-dimmer);
-    margin-top: 6px;
-    line-height: 1.5;
-  }
-
-  .corr-what .topic-tag {
-    display: inline-block;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-dimmer);
-    border: 1px solid var(--border-bright);
-    border-radius: 100px;
-    padding: 4px 12px;
-    margin-bottom: 12px;
-  }
-  .corr-what p {
-    color: #D3D0C4;
-    font-size: 0.98rem;
-    line-height: 1.65;
-  }
-
-  @media (max-width: 720px) {
-    .corr-item { grid-template-columns: 1fr; gap: 10px; }
-  }
-
-  /* ---------- PDF Papers section ---------- */
-  .papers-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 32px 130px;
-  }
-
-  .papers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-  }
-
-  .paper-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 18px;
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    transition: border-color 0.2s, transform 0.2s, background 0.2s;
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    box-shadow: var(--glass-shadow);
-  }
-  .paper-card:hover { border-color: var(--glass-border-bright); background: var(--glass-bg-hover); transform: translateY(-4px); }
-
-  .paper-icon {
-    width: 40px; height: 40px;
-    border: 1px solid var(--border-bright);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--text-dim);
-    margin-bottom: 18px;
-    letter-spacing: 0.02em;
-  }
-
-  .paper-card h3 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 1.12rem;
-    line-height: 1.3;
-    margin-bottom: 10px;
-  }
-
-  .paper-card .authors {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.74rem;
-    color: var(--text-dimmer);
-    margin-bottom: 14px;
-  }
-
-  .paper-card .blurb {
-    color: var(--text-dim);
-    font-size: 0.9rem;
-    flex-grow: 1;
-    margin-bottom: 20px;
-  }
-
-  .paper-download {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 20px;
-    border: 1px solid var(--border-bright);
-    border-radius: 100px;
-    color: var(--text);
-    text-decoration: none;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    transition: all 0.2s;
-  }
-  .paper-download:hover {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: #08090B;
-    font-weight: 600;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(20,22,26,0.45); backdrop-filter: blur(3px); display: none; align-items: flex-start; justify-content: center; padding: 60px 20px; overflow-y: auto; z-index: 200; }
+  .overlay.open { display: flex; }
+  .article-full { background: #fff; border-radius: 22px; max-width: 680px; width: 100%; padding: 46px; position: relative; box-shadow: var(--shadow-lg); }
+  .close-btn { position: absolute; top: 22px; right: 22px; background: var(--bg); border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem; color: var(--text-dim); display: flex; align-items: center; justify-content: center; }
+  .close-btn:hover { background: var(--border); }
+  .article-full h2 { font-size: 1.7rem; font-weight: 700; margin: 16px 0 20px; letter-spacing: -0.02em; }
+  .article-full .full-body p { margin-bottom: 15px; color: #33363D; font-size: 0.98rem; }
+  .article-full .source { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--text-dimmer); }
+  footer { padding: 40px 40px 60px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; color: var(--text-dimmer); font-size: 0.82rem; }
+  @media (max-width: 680px) { .sidebar { width: 60px; } .main { margin-left: 60px; } .topbar, .hero, .stat-row, .section { padding-left: 20px; padding-right: 20px; } }
 </style>
 </head>
 <body>
 
-<div class="hero-wrap">
-  <canvas id="neuralCanvas"></canvas>
+<div class="sidebar">
+  <div class="sidebar-logo"><img src="assets/logo.png" alt="Nuro"></div>
+  <div class="sidebar-nav">
+    <div class="sidebar-icon active" data-target="articlesSection" title="Articles">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    </div>
+    <div class="sidebar-icon" data-target="corrSection" title="Correspondence">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z"/><path d="m22 6-10 7L2 6"/></svg>
+    </div>
+    <div class="sidebar-icon" data-target="papersSection" title="Papers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+    </div>
+  </div>
+  <div class="sidebar-bottom">
+    <a class="sidebar-icon" href="https://t.me/nurobrain" target="_blank" title="Telegram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+    </a>
+  </div>
+</div>
 
-  <header>
-    <div class="logo"><img class="logo-mark" src="assets/logo.png" alt="Nuro logo">Nuro <span>Archive</span></div>
-    <div class="header-right">
-      <nav>
-        <a href="https://t.me/nurobrain" target="_blank" data-i18n="nav.channel">Telegram Channel</a>
-      </nav>
+<div class="main">
+  <div class="topbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search articles, researchers, topics...">
+    </div>
+    <div class="topbar-right">
+      <a class="telegram-pill" href="https://t.me/nurobrain" target="_blank" data-i18n="nav.channel">Telegram Channel</a>
       <div class="lang-toggle">
         <button data-lang="en" class="active">EN</button>
         <button data-lang="uz">UZ</button>
       </div>
     </div>
-  </header>
+  </div>
 
   <div class="hero">
-    <div class="hero-eyebrow" data-i18n="hero.eyebrow">Science, translated for students</div>
-    <h1 data-i18n="hero.title">Real research, <em>rewired</em> for how students actually study</h1>
+    <div class="hero-eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Science, translated for students</span></div>
+    <h1 data-i18n="hero.title">Real research, rewired for how students actually study</h1>
     <p data-i18n="hero.sub">Nuro reads the papers so you don't have to — turning peer-reviewed neuroscience into short, practical reads on sleep, memory, and focus.</p>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="num">6</div><div class="label" data-i18n="hero.stat1">Articles</div></div>
-      <div class="hero-stat"><div class="num">9</div><div class="label" data-i18n="hero.stat2">Researchers cited</div></div>
-      <div class="hero-stat"><div class="num">2</div><div class="label" data-i18n="hero.stat3">Languages</div></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card"><div class="num">6</div><div class="label" data-i18n="hero.stat1">Articles</div></div>
+    <div class="stat-card"><div class="num">11</div><div class="label" data-i18n="hero.stat2">Researchers cited</div></div>
+    <div class="stat-card"><div class="num">2</div><div class="label" data-i18n="hero.stat3">Languages</div></div>
+    <div class="stat-card"><div class="num">6</div><div class="label" data-i18n="hero.stat4">Free PDFs</div></div>
+  </div>
+
+  <div class="section" id="articlesSection">
+    <div class="section-head">
+      <h2 data-i18n="section.articles">Articles</h2>
+      <div class="filter-pills" id="filters">
+        <button class="filter-pill active" data-cat="all" data-i18n="filter.all">All</button>
+        <button class="filter-pill" data-cat="sleep" data-i18n="filter.sleep">Sleep</button>
+        <button class="filter-pill" data-cat="memory" data-i18n="filter.memory">Memory</button>
+        <button class="filter-pill" data-cat="habit" data-i18n="filter.habit">Habits & Discipline</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="section" id="corrSection">
+    <div class="section-head">
+      <div>
+        <h2 data-i18n="corr.title2">Real replies from researchers</h2>
+        <div class="sub" data-i18n="corr.sub">Every article started as a cold email. Here's who wrote back.</div>
+      </div>
+    </div>
+    <div class="corr-list" id="corrList"></div>
+  </div>
+
+  <div class="section" id="papersSection">
+    <div class="section-head">
+      <div>
+        <h2 data-i18n="papers.title2">Original papers</h2>
+        <div class="sub" data-i18n="papers.sub">Free, open-access PDFs — not summaries.</div>
+      </div>
+    </div>
+    <div class="papers-grid" id="papersGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="cta-box">
+      <h3 data-i18n="cta.title">Get new research digests as soon as they're posted</h3>
+      <p data-i18n="cta.sub">Join the Nuro Telegram channel — sleep science, memory research, and real replies from the scientists behind it.</p>
+      <a class="cta-btn" href="https://t.me/nurobrain" target="_blank" data-i18n="cta.button">Join the Channel →</a>
     </div>
   </div>
 
-  <div class="scroll-hint"><div class="line"></div><span data-i18n="hero.scroll">SCROLL</span></div>
-</div>
-
-<div class="topics-section">
-  <div class="topics-header" data-i18n="topics.title">Browse by topic</div>
-  <div class="topics-grid" id="topicsGrid"></div>
-</div>
-
-<div class="featured-section">
-  <div class="featured-header" data-i18n="featured.title">Featured</div>
-  <div class="featured-strip" id="featuredStrip"></div>
-</div>
-
-<svg class="thread-divider" viewBox="0 0 1200 32" preserveAspectRatio="none" aria-hidden="true">
-  <polyline points="0,16 30,4 60,28 90,4 120,28 150,4 180,28 210,4 240,28 270,4 300,28 330,4 360,28 390,4 420,28 450,4 480,28 510,4 540,28 570,4 600,28 630,4 660,28 690,4 720,28 750,4 780,28 810,4 840,28 870,4 900,28 930,4 960,28 990,4 1020,28 1050,4 1080,28 1110,4 1140,28 1170,4 1200,16"
-    fill="none" stroke="#F0F0EE" stroke-width="1.5" opacity="0.4"/>
-  <polyline points="0,16 30,28 60,4 90,28 120,4 150,28 180,4 210,28 240,4 270,28 300,4 330,28 360,4 390,28 420,4 450,28 480,4 510,28 540,4 570,28 600,4 630,28 660,4 690,28 720,4 750,28 780,4 810,28 840,4 870,28 900,4 930,28 960,4 990,28 1020,4 1050,28 1080,4 1110,28 1140,4 1170,28 1200,16"
-    fill="none" stroke="#6E6F73" stroke-width="1.5" opacity="0.35"/>
-</svg>
-
-<div class="filters-section">
-  <div class="filters">
-    <div class="filter-pills" id="filters">
-      <button class="filter-pill active" data-cat="all" data-i18n="filter.all">All</button>
-      <button class="filter-pill" data-cat="sleep" data-i18n="filter.sleep">Sleep</button>
-      <button class="filter-pill" data-cat="memory" data-i18n="filter.memory">Memory</button>
-      <button class="filter-pill" data-cat="habit" data-i18n="filter.habit">Habits & Discipline</button>
-      <button class="filter-pill" data-cat="focus" data-i18n="filter.focus">Attention & Cognition</button>
-    </div>
-    <div class="filter-count" id="filterCount"></div>
-  </div>
-
-  <div class="grid" id="grid"></div>
-</div>
-
-<div class="cta-section">
-  <div class="cta-box">
-    <h3 data-i18n="cta.title">Get new research digests as soon as they're posted</h3>
-    <p data-i18n="cta.sub">Join the Nuro Telegram channel — sleep science, memory research, and real replies from the scientists behind it, twice a week.</p>
-    <a class="cta-btn" href="https://t.me/nurobrain" target="_blank" data-i18n="cta.button">Join the Channel →</a>
-  </div>
-</div>
-
-<div class="corr-section">
-  <div class="corr-header">
-    <div class="hero-eyebrow" data-i18n="corr.eyebrow">Direct from researchers</div>
-    <h2 data-i18n="corr.title">Real replies from the people who wrote the papers</h2>
-    <p data-i18n="corr.sub">Every article on this site started as a cold email. Here's who wrote back, and what they told us.</p>
-  </div>
-  <div class="corr-list" id="corrList"></div>
-</div>
-
-<div class="papers-section">
-  <div class="corr-header">
-    <div class="hero-eyebrow" data-i18n="papers.eyebrow">Primary sources</div>
-    <h2 data-i18n="papers.title">Read the original papers, free and unedited</h2>
-    <p data-i18n="papers.sub">These are the full, open-access PDFs — not summaries. Download and read the actual research.</p>
-  </div>
-  <div class="papers-grid" id="papersGrid"></div>
+  <footer>
+    <div data-i18n="footer.tagline">Nuro — a research-backed study platform for Uzbek students</div>
+    <div>© 2026 Nuro</div>
+  </footer>
 </div>
 
 <div class="overlay" id="overlay">
   <div class="article-full" id="articleFull"></div>
 </div>
 
-<footer>
-  <div class="fine" data-i18n="footer.tagline">Nuro — a research-backed study platform for Uzbek students</div>
-  <a class="tg-link" href="https://t.me/nurobrain" target="_blank">t.me/nurobrain →</a>
-</footer>
-
 <script>
-/* ============ i18n static strings ============ */
 const I18N = {
   en: {
     'nav.channel': 'Telegram Channel',
     'hero.eyebrow': 'Science, translated for students',
-    'hero.title': 'Real research, <em>rewired</em> for how students actually study',
+    'hero.title': 'Real research, rewired for how students actually study',
     'hero.sub': "Nuro reads the papers so you don't have to — turning peer-reviewed neuroscience into short, practical reads on sleep, memory, and focus.",
-    'hero.stat1': 'Articles', 'hero.stat2': 'Researchers cited', 'hero.stat3': 'Languages',
-    'hero.scroll': 'SCROLL',
-    'filter.all': 'All', 'filter.sleep': 'Sleep', 'filter.memory': 'Memory', 'filter.habit': 'Habits & Discipline', 'filter.focus': 'Attention & Cognition',
-    'footer.tagline': 'Nuro — a research-backed study platform for Uzbek students',
-    'card.translation': 'Nuro digest',
-    'card.read': 'Read',
-    'corr.eyebrow': 'Direct from researchers',
-    'corr.title': "Real replies from the people who wrote the papers",
-    'corr.sub': "Every article on this site started as a cold email. Here's who wrote back, and what they told us.",
-    'papers.eyebrow': 'Primary sources',
-    'papers.title': 'Read the original papers, free and unedited',
-    'papers.sub': "These are the full, open-access PDFs — not summaries. Download and read the actual research.",
-    'paper.download': 'Download PDF',
-    'topics.title': 'Browse by topic',
-    'featured.title': 'Featured',
+    'hero.stat1': 'Articles', 'hero.stat2': 'Researchers cited', 'hero.stat3': 'Languages', 'hero.stat4': 'Free PDFs',
+    'section.articles': 'Articles',
+    'filter.all': 'All', 'filter.sleep': 'Sleep', 'filter.memory': 'Memory', 'filter.habit': 'Habits & Discipline',
+    'corr.title2': 'Real replies from researchers',
+    'corr.sub': "Every article started as a cold email. Here's who wrote back.",
+    'papers.title2': 'Original papers',
+    'papers.sub': 'Free, open-access PDFs — not summaries.',
     'cta.title': "Get new research digests as soon as they're posted",
-    'cta.sub': "Join the Nuro Telegram channel — sleep science, memory research, and real replies from the scientists behind it, twice a week.",
+    'cta.sub': "Join the Nuro Telegram channel — sleep science, memory research, and real replies from the scientists behind it.",
     'cta.button': 'Join the Channel →',
+    'footer.tagline': 'Nuro — a research-backed study platform for Uzbek students',
+    'card.translation': 'Nuro digest', 'card.read': 'Read', 'paper.download': 'Download PDF',
   },
   uz: {
     'nav.channel': 'Telegram kanal',
     'hero.eyebrow': "Ilm-fan — o'quvchilar uchun",
-    'hero.title': "Haqiqiy tadqiqotlar, o'quvchilar <em>tiliga</em> moslashtirilgan",
+    'hero.title': "Haqiqiy tadqiqotlar, o'quvchilar tiliga moslashtirilgan",
     'hero.sub': "Nuro ilmiy maqolalarni siz o'rniga o'qiydi — va ularni uyqu, xotira va e'tibor haqidagi qisqa, amaliy maqolalarga aylantiradi.",
-    'hero.stat1': 'Maqola', 'hero.stat2': 'Tadqiqotchi', 'hero.stat3': 'Til',
-    'hero.scroll': 'PASTGA',
-    'filter.all': 'Barchasi', 'filter.sleep': 'Uyqu', 'filter.memory': 'Xotira', 'filter.habit': 'Odat va intizom', 'filter.focus': 'Diqqat va bilish',
-    'footer.tagline': "Nuro — o'zbek o'quvchilari uchun ilm-fanga asoslangan platforma",
-    'card.translation': 'Nuro tarjimasi',
-    'card.read': "O'qish",
-    'corr.eyebrow': "Tadqiqotchilardan bevosita",
-    'corr.title': "Maqolalarni yozgan olimlarning haqiqiy javoblari",
-    'corr.sub': "Saytdagi har bir maqola oddiy sovuq xat bilan boshlangan. Mana kim javob berdi va nima dedi.",
-    'papers.eyebrow': "Asl manbalar",
-    'papers.title': "Original maqolalarni bepul, tahrirsiz o'qing",
-    'papers.sub': "Bular to'liq, ochiq (bepul) PDF fayllar — qisqartma emas. Yuklab oling va asl tadqiqotni o'qing.",
-    'paper.download': "PDF yuklab olish",
-    'topics.title': "Mavzu bo'yicha ko'rish",
-    'featured.title': "Tanlangan",
+    'hero.stat1': 'Maqola', 'hero.stat2': 'Tadqiqotchi', 'hero.stat3': 'Til', 'hero.stat4': 'Bepul PDF',
+    'section.articles': 'Maqolalar',
+    'filter.all': 'Barchasi', 'filter.sleep': 'Uyqu', 'filter.memory': 'Xotira', 'filter.habit': 'Odat va intizom',
+    'corr.title2': "Tadqiqotchilarning haqiqiy javoblari",
+    'corr.sub': "Har bir maqola oddiy sovuq xat bilan boshlangan. Mana kim javob berdi.",
+    'papers.title2': 'Original maqolalar',
+    'papers.sub': "Bepul, ochiq PDF fayllar — qisqartma emas.",
     'cta.title': "Yangi tadqiqot xulosalarini birinchi bo'lib oling",
-    'cta.sub': "Nuro Telegram kanaliga qo'shiling — uyqu fani, xotira tadqiqotlari va olimlarning haqiqiy javoblari, haftasiga ikki marta.",
+    'cta.sub': "Nuro Telegram kanaliga qo'shiling — uyqu fani, xotira tadqiqotlari va olimlarning haqiqiy javoblari.",
     'cta.button': "Kanalga qo'shilish →",
+    'footer.tagline': "Nuro — o'zbek o'quvchilari uchun ilm-fanga asoslangan platforma",
+    'card.translation': 'Nuro tarjimasi', 'card.read': "O'qish", 'paper.download': "PDF yuklab olish",
   }
 };
 
 const CATEGORY_META = {
-  sleep: { color: '#FFFFFF', en: 'Sleep', uz: 'Uyqu' },
-  memory: { color: '#B4B5B9', en: 'Memory', uz: 'Xotira' },
-  habit: { color: '#7C7D82', en: 'Habits & Discipline', uz: 'Odat va intizom' },
-  focus: { color: '#D8D9DC', en: 'Attention & Cognition', uz: 'Diqqat va bilish' },
+  sleep: { color: '#0891B2', bg: '#E0F6FA', en: 'Sleep', uz: 'Uyqu' },
+  memory: { color: '#1CB98A', bg: '#E7FBF4', en: 'Memory', uz: 'Xotira' },
+  habit: { color: '#D97706', bg: '#FEF3E2', en: 'Habits & Discipline', uz: 'Odat va intizom' },
 };
 
-/* ============ Articles: bilingual content ============ */
 const ARTICLES = [
-  {
-    id: 1, cat: 'memory',
-    en: {
-      title: "When sleep is short, the brain stops telling similar things apart",
+  { id: 1, cat: 'memory',
+    en: { title: "When sleep is short, the brain stops telling similar things apart",
       excerpt: "A Brown University study finds that restricted sleep doesn't erase memory outright — it specifically damages your ability to distinguish similar concepts from each other.",
       body: [
         "Brown University sleep researcher Dr. Jared Saletin ran a controlled experiment with adolescents: one group slept a restricted 7.5 hours for five nights, another slept a full 10 hours.",
         "The result was more specific than expected. Restricted sleep didn't wipe out memory broadly — participants could still recognize things they'd seen before. But one particular skill dropped sharply: telling apart items that were similar to each other.",
-        "This matters directly for exam prep. If you're studying two similar words (like 'affect' and 'effect') or two closely related grammar rules, that exact skill — discrimination between near-identical concepts — is the first thing sleep loss damages.",
-        "Takeaway: if your study material is full of near-identical concepts, cutting sleep the night before is especially costly for exactly that kind of learning."
-      ],
-      source: "Source: SLEEP Advances, Oxford Academic, 2025 — Jared Saletin et al."
-    },
-    uz: {
-      title: "Uyqu yetishmasa, miya o'xshash narsalarni farqlay olmay qoladi",
+        "This matters directly for exam prep. If you're studying two similar words or two closely related grammar rules, that exact skill — discrimination between near-identical concepts — is the first thing sleep loss damages.",
+        "Takeaway: if your study material is full of near-identical concepts, cutting sleep the night before is especially costly for exactly that kind of learning." ],
+      source: "Source: SLEEP Advances, Oxford Academic, 2025 — Jared Saletin et al." },
+    uz: { title: "Uyqu yetishmasa, miya o'xshash narsalarni farqlay olmay qoladi",
       excerpt: "Brown universiteti tadqiqoti: qisqargan uyqu xotirani butunlay o'chirmaydi, lekin o'xshash tushunchalarni bir-biridan ajratish qobiliyatini aniq pasaytiradi.",
       body: [
-        "Brown universiteti tadqiqotchisi doktor Jared Saletin va uning jamoasi o'smirlar ustida qiziq tajriba o'tkazdi: bir guruh besh kecha davomida qisqartirilgan uyquda (7.5 soat), boshqa guruh esa to'liq uyquda (10 soat) bo'ldi.",
-        "Natija kutilganidan farqli chiqdi. Qisqargan uyqu umumiy xotirani butunlay yo'qotmadi — o'quvchilar hali ham narsalarni \"tanigan\" holda eslay olishdi. Lekin bitta aniq qobiliyat sezilarli darajada yomonlashdi: o'xshash narsalarni bir-biridan farqlash.",
-        "Bu aynan SAT yoki IELTS tayyorlaydigan o'quvchi uchun muhim: agar siz ikkita o'xshash so'z yoki tushunchani o'rganayotgan bo'lsangiz, aynan shu qobiliyat — farqni ilg'ash — uyqu yetishmasligidan birinchi bo'lib zarar ko'radi.",
-        "Xulosa: agar material bir-biriga o'xshash tushunchalardan iborat bo'lsa, bu kechalarda uyquni qisqartirish aynan shu turdagi bilimni eng ko'p zarar ko'radigan joyga aylantiradi."
-      ],
-      source: "Manba: SLEEP Advances, Oxford Academic, 2025 — Jared Saletin va hamkasblari"
-    }
-  },
-  {
-    id: 2, cat: 'memory',
-    en: {
-      title: "Teens who sleep longer and earlier have measurably bigger brains",
+        "Brown universiteti tadqiqotchisi doktor Jared Saletin va uning jamoasi o'smirlar ustida tajriba o'tkazdi: bir guruh besh kecha davomida qisqartirilgan uyquda (7.5 soat), boshqa guruh esa to'liq uyquda (10 soat) bo'ldi.",
+        "Natija kutilganidan farqli chiqdi. Qisqargan uyqu umumiy xotirani butunlay yo'qotmadi. Lekin bitta aniq qobiliyat sezilarli darajada yomonlashdi: o'xshash narsalarni bir-biridan farqlash.",
+        "Bu aynan SAT yoki IELTS tayyorlaydigan o'quvchi uchun muhim: agar siz ikkita o'xshash so'z yoki tushunchani o'rganayotgan bo'lsangiz, aynan shu qobiliyat uyqu yetishmasligidan birinchi bo'lib zarar ko'radi.",
+        "Xulosa: material bir-biriga o'xshash tushunchalardan iborat bo'lsa, uyquni qisqartirish shu turdagi bilimni eng ko'p zarar ko'radigan joyga aylantiradi." ],
+      source: "Manba: SLEEP Advances, Oxford Academic, 2025 — Jared Saletin va hamkasblari" } },
+  { id: 2, cat: 'memory',
+    en: { title: "Teens who sleep longer and earlier have measurably bigger brains",
       excerpt: "A Cambridge study finds that teens with longer, earlier sleep show larger brain volume and better scores on vocabulary, reading, and attention tasks.",
       body: [
-        "Cambridge University researchers analyzed brain scans of American teenagers. The finding: those who slept longer and went to bed earlier than their peers had larger brain volume, and scored better on vocabulary, reading, problem-solving, and attention tasks.",
-        "The most striking detail: even the 'better sleepers' in this study weren't hitting the full medically-recommended sleep amount. That means even a small improvement — 30 to 60 minutes earlier to bed — can move the needle, even without reaching a 'perfect' 9 hours.",
-        "Practical takeaway for Nuro readers: drop the all-or-nothing thinking. If 8 hours isn't realistic tonight, going from 6.5 to 7.5 still measurably helps."
-      ],
-      source: "Source: University of Cambridge, Cell Reports, 2025"
-    },
-    uz: {
-      title: "Ko'proq va barqaror uxlagan o'smirlarning miyasi kattaroq",
+        "Cambridge University researchers analyzed brain scans of American teenagers. Those who slept longer and went to bed earlier than their peers had larger brain volume, and scored better on vocabulary, reading, problem-solving, and attention tasks.",
+        "The most striking detail: even the 'better sleepers' in this study weren't hitting the full medically-recommended sleep amount. A small improvement — 30 to 60 minutes earlier to bed — can move the needle.",
+        "Practical takeaway: drop the all-or-nothing thinking. If 8 hours isn't realistic tonight, going from 6.5 to 7.5 still measurably helps." ],
+      source: "Source: University of Cambridge, Cell Reports, 2025" },
+    uz: { title: "Ko'proq va barqaror uxlagan o'smirlarning miyasi kattaroq",
       excerpt: "Kembrij universiteti tadqiqoti: uzoqroq va erta uxlagan o'smirlarning miya hajmi kattaroq, so'z boyligi va diqqat testlarida natijalari yaxshiroq bo'lgan.",
       body: [
-        "Kembrij universiteti tadqiqotchilari AQShdagi o'smirlarning miya skanerlarini tahlil qilishdi. Natija: uzoqroq uxlagan va erta yotgan o'smirlarning miya hajmi kattaroq bo'lgan, shuningdek so'z boyligi, o'qish, muammo yechish va diqqat testlarida ham yaxshiroq natija ko'rsatishgan.",
-        "Eng qiziq jihati shu: hatto tadqiqotdagi \"yaxshi uxlovchi\" o'smirlar ham tibbiyot tavsiya qiladigan to'liq uyqu miqdoriga yetmagan. Bu shuni anglatadi — mukammal 9 soat uxlashning iloji bo'lmasa ham, kichik yaxshilanish ham sezilarli farq qilishi mumkin.",
-        "Amaliy xulosa: agar 8 soat uxlashning iloji bo'lmasa, 6.5 soatdan 7.5 soatga o'tish ham miya faoliyatiga ijobiy ta'sir qiladi."
-      ],
-      source: "Manba: Kembrij universiteti, Cell Reports, 2025"
-    }
-  },
-  {
-    id: 3, cat: 'sleep',
-    en: {
-      title: "Stop guessing your sleep — measure it",
+        "Kembrij universiteti tadqiqotchilari AQShdagi o'smirlarning miya skanerlarini tahlil qilishdi. Uzoqroq uxlagan va erta yotgan o'smirlarning miya hajmi kattaroq bo'lgan.",
+        "Eng qiziq jihati: hatto \"yaxshi uxlovchi\" o'smirlar ham to'liq tavsiya etilgan uyqu miqdoriga yetmagan. Kichik yaxshilanish ham sezilarli farq qilishi mumkin.",
+        "Amaliy xulosa: 8 soat uxlashning iloji bo'lmasa, 6.5 dan 7.5 soatga o'tish ham foyda beradi." ],
+      source: "Manba: Kembrij universiteti, Cell Reports, 2025" } },
+  { id: 3, cat: 'sleep',
+    en: { title: "Stop guessing your sleep — measure it",
       excerpt: "NUS researcher Dr. Ju Lynn Ong's rule of thumb: under 8 hours dents speed and accuracy; under 6.5 hours causes a sharp decline, especially if it repeats.",
       body: [
-        "In correspondence with National University of Singapore researcher Dr. Ju Lynn Ong, she gave concrete, usable numbers: there's no widely reliable way yet to measure sleep quality directly, but tracking simple bed-to-wake duration is genuinely useful.",
-        "Her rule: under 8 hours of sleep causes a mild dip in speed and accuracy on tasks. Under 6.5 hours causes a sharp decline — especially if it happens across several nights in a row.",
-        "One more detail worth knowing: sleep loss hits positive mood harder than negative mood. That means a student who doesn't feel visibly 'bad' might still be significantly impaired without realizing it.",
-        "Practical step: instead of guessing, use a free app (Sleep Cycle, Google Fit, or Apple Health) to track your actual bed-to-wake time."
-      ],
-      source: "Source: National University of Singapore, via correspondence, 2026"
-    },
-    uz: {
-      title: "Uxlash vaqtingizni chizib emas, o'lchab bilib oling",
-      excerpt: "NUS tadqiqotchisi doktor Ju Lynn Ongning tavsiyasi: 8 soatdan kam uyqu tezlik va aniqlikka, 6.5 soatdan kam uyqu esa keskin ravishda ta'sir qiladi.",
+        "In correspondence with NUS researcher Dr. Ju Lynn Ong, she gave concrete numbers: under 8 hours of sleep causes a mild dip in speed and accuracy. Under 6.5 hours causes a sharp decline, especially across several nights in a row.",
+        "One more detail: sleep loss hits positive mood harder than negative mood. A student who doesn't feel visibly 'bad' might still be significantly impaired.",
+        "Practical step: use a free app (Sleep Cycle, Google Fit, Apple Health) to track your actual bed-to-wake time instead of guessing." ],
+      source: "Source: National University of Singapore, via correspondence, 2026" },
+    uz: { title: "Uxlash vaqtingizni chizib emas, o'lchab bilib oling",
+      excerpt: "NUS tadqiqotchisi doktor Ju Lynn Ongning tavsiyasi: 8 soatdan kam uyqu tezlik va aniqlikka, 6.5 soatdan kam uyqu esa keskin ta'sir qiladi.",
       body: [
-        "Singapur Milliy universiteti (NUS) tadqiqotchisi doktor Ju Lynn Ong bilan yozishmalarimizda u aniq, amaliy raqamlar berdi: hozircha uyqu sifatini to'g'ri o'lchaydigan keng tarqalgan usul yo'q, lekin oddiy \"yotish-uyg'onish\" vaqtini kuzatish orqali foydali xulosalar chiqarish mumkin.",
-        "Uning tavsiyasi: 8 soatdan kam uyqu tezlik va aniqlik talab qiladigan vazifalarda yengil pasayishga olib keladi. 6.5 soatdan kam uyqu esa keskin yomonlashuvga sabab bo'ladi — ayniqsa bir necha kecha ketma-ket takrorlansa.",
-        "Yana bir qiziq nuqta: uyqu yetishmasligi ijobiy kayfiyatga salbiy kayfiyatga qaraganda ko'proq zarar yetkazadi. Ya'ni, o'zini \"yomon\" his qilmayotgan o'quvchi ham sezilarli darajada qiyinchilik chekayotgan bo'lishi mumkin.",
-        "Amaliy qadam: taxmin qilish o'rniga, bepul ilova (Sleep Cycle, Google Fit yoki Apple Health) orqali aniq necha soat uxlaganingizni kuzating."
-      ],
-      source: "Manba: Singapur Milliy universiteti (NUS), yozishma orqali, 2026"
-    }
-  },
-  {
-    id: 4, cat: 'sleep',
-    en: {
-      title: "Can writing down your bedtime intention actually change it?",
+        "NUS tadqiqotchisi doktor Ju Lynn Ong aniq raqamlar berdi: 8 soatdan kam uyqu tezlik va aniqlikda yengil pasayishga olib keladi. 6.5 soatdan kam uyqu esa keskin yomonlashuvga sabab bo'ladi.",
+        "Yana bir nuqta: uyqu yetishmasligi ijobiy kayfiyatga salbiydan ko'ra ko'proq zarar yetkazadi.",
+        "Amaliy qadam: taxmin qilish o'rniga bepul ilova orqali aniq necha soat uxlaganingizni kuzating." ],
+      source: "Manba: Singapur Milliy universiteti (NUS), yozishma orqali, 2026" } },
+  { id: 4, cat: 'sleep',
+    en: { title: "Can writing down your bedtime intention actually change it?",
       excerpt: "A concrete experiment design from NUS researcher Dr. Stijn Massar: one baseline week, then two weeks of bedtime-intention prompts.",
       body: [
-        "Many students don't want to sleep late — but do anyway. This is called 'bedtime procrastination.' In correspondence, NUS researcher Dr. Stijn Massar proposed a concrete way to test whether a simple prompt can fix it.",
-        "The design: one baseline week with no prompt, tracking natural sleep timing. Then two weeks with a daily prompt asking 'what time do you intend to sleep tonight?' Compare the two periods.",
-        "Important controls: only compare school-night data (weekends behave differently), exclude exam periods, and if comparing across a group, match for age and sex — these factors can skew results."
-      ],
-      source: "Source: National University of Singapore, via correspondence, 2026"
-    },
-    uz: {
-      title: "Yotish niyatini yozib qo'yish uyqu odatini o'zgartira oladimi?",
-      excerpt: "NUS tadqiqotchisi doktor Stijn Massar bilan yozishmada tuzilgan aniq tajriba dizayni: bitta hafta nazorat, ikki hafta \"yotish niyati\" eslatmasi bilan.",
+        "In correspondence, NUS researcher Dr. Stijn Massar proposed testing whether a simple daily prompt ('what time do you intend to sleep tonight?') changes bedtime procrastination.",
+        "Design: one baseline week with no prompt, then two weeks with the daily prompt, comparing the two periods.",
+        "Important: only compare school-night data, exclude exam periods, and match for age/sex if comparing across a group." ],
+      source: "Source: National University of Singapore, via correspondence, 2026" },
+    uz: { title: "Yotish niyatini yozib qo'yish uyqu odatini o'zgartira oladimi?",
+      excerpt: "NUS tadqiqotchisi doktor Stijn Massar bilan yozishmada tuzilgan aniq tajriba dizayni.",
       body: [
-        "Ko'p o'quvchi kech yotishni xohlamaydi, lekin baribir kech yotadi. NUS tadqiqotchisi doktor Stijn Massar bilan yozishmalarimizda u aniq tajriba dizaynini taklif qildi.",
-        "Dizayn shunday: birinchi hafta hech qanday eslatmasiz, oddiy holatda uyqu vaqtini kuzatasiz. Keyingi ikki hafta davomida har kuni \"yotish niyati\" haqida eslatma yuboriladi. Keyin ikkala davrni solishtirasiz.",
-        "Muhim eslatma: faqat maktab kunlarining ma'lumotlarini solishtiring, imtihon davrlarini hisobga olmang, va guruh bilan solishtirsangiz yosh/jinsni moslashtiring."
-      ],
-      source: "Manba: Singapur Milliy universiteti (NUS), yozishma orqali, 2026"
-    }
-  },
-  {
-    id: 5, cat: 'habit',
-    en: {
-      title: "Why the study method that feels hard is usually the one working",
+        "NUS tadqiqotchisi doktor Stijn Massar oddiy kunlik eslatma yotishni kechiktirishni o'zgartira oladimi, deb tekshirishni taklif qildi.",
+        "Dizayn: bitta hafta nazorat, ikki hafta \"yotish niyati\" eslatmasi bilan, keyin ikkalasini solishtirish.",
+        "Muhim: faqat maktab kunlari ma'lumotini solishtiring, imtihon davrini hisobga olmang." ],
+      source: "Manba: Singapur Milliy universiteti (NUS), yozishma orqali, 2026" } },
+  { id: 5, cat: 'habit',
+    en: { title: "Why the study method that feels hard is usually the one working",
       excerpt: "Maastricht researcher Dr. Louise David's finding: students misread difficulty as a sign they're studying wrong — when it's often the opposite.",
       body: [
-        "Most students choose rereading because it feels easy, while active recall feels hard. But the evidence points the other way: the method that feels harder is often the one that actually works.",
-        "Maastricht University researcher Dr. Louise David calls this the 'experienced vs. actual learning paradox' — students interpret difficulty as failure, when it's often a sign that deep learning is happening.",
-        "Her practical suggestion: write 5 flashcards immediately after a lecture, or try to actively recall the previous lecture's content right before the next one starts. Small enough to fit into an existing routine, without adding a big new task.",
-        "The core message: if something feels hard while studying, that's not proof you're doing it wrong — often it's proof you're doing it right."
-      ],
-      source: "Source: Maastricht University, via correspondence, 2026"
-    },
-    uz: {
-      title: "Nega qiyin his qilingan o'qish usuli aslida yaxshi ishlaydi?",
+        "Most students choose rereading because it feels easy, while active recall feels hard. But the method that feels harder is often the one that actually works.",
+        "Dr. Louise David calls this the 'experienced vs. actual learning paradox' — students interpret difficulty as failure, when it's often a sign deep learning is happening.",
+        "Her suggestion: write 5 flashcards immediately after a lecture, or actively recall the previous lecture right before the next one starts." ],
+      source: "Source: Maastricht University, via correspondence, 2026" },
+    uz: { title: "Nega qiyin his qilingan o'qish usuli aslida yaxshi ishlaydi?",
       excerpt: "Maastricht universiteti tadqiqotchisi doktor Louise Davidning topilmasi: o'quvchilar qiyinchilikni \"noto'g'ri o'qiyapman\" belgisi deb noto'g'ri talqin qiladi.",
       body: [
-        "Ko'pchilik o'quvchi qayta o'qishni tanlaydi, chunki bu \"yengil\" his qiladi, faol eslash esa qiyin tuyuladi. Lekin ilmiy dalillar aksincha ko'rsatadi: qiyin his qilingan usul ko'pincha aslida yaxshiroq ishlaydi.",
-        "Maastricht universiteti tadqiqotchisi doktor Louise David buni \"his qilingan va haqiqiy o'rganish paradoksi\" deb ataydi: o'quvchi qiyinchilikni xato belgisi deb o'ylaydi, aslida esa bu chuqur o'rganish sodir bo'layotganining belgisidir.",
-        "Uning amaliy tavsiyasi: darsdan keyin darhol 5 ta flashcard yozing, yoki keyingi darsdan oldin avvalgi mavzuni faol eslashga urinib ko'ring.",
-        "Eng muhimi: agar biror narsa o'rganish paytida qiyin tuyulsa, bu \"noto'g'ri qilyapman\" degani emas — aksincha, ko'pincha bu \"to'g'ri qilyapman\" degani."
-      ],
-      source: "Manba: Maastricht universiteti, yozishma orqali, 2026"
-    }
-  },
-  {
-    id: 6, cat: 'habit',
-    en: {
-      title: "What 40 years of procrastination research actually says",
+        "Ko'pchilik qayta o'qishni tanlaydi, chunki bu yengil his qiladi. Lekin qiyin his qilingan usul ko'pincha aslida yaxshiroq ishlaydi.",
+        "Doktor Louise David buni \"his qilingan va haqiqiy o'rganish paradoksi\" deb ataydi.",
+        "Tavsiya: darsdan keyin darhol 5 ta flashcard yozing, yoki keyingi darsdan oldin avvalgi mavzuni faol eslashga urinib ko'ring." ],
+      source: "Manba: Maastricht universiteti, yozishma orqali, 2026" } },
+  { id: 6, cat: 'habit',
+    en: { title: "What 40 years of procrastination research actually says",
       excerpt: "Paderborn researcher Dr. Katrin Klingsieck's systematic review: procrastination isn't laziness — it's a deliberate delay despite knowing the cost.",
       body: [
-        "German researcher Dr. Katrin Klingsieck reviewed four decades of procrastination research and reached an important conclusion: procrastination isn't simple laziness — it's a deliberate delay made despite knowing it will backfire.",
-        "Her research points to the real driver: usually not the task itself, but the negative emotions attached to it (fear of failing, or unclear instructions). That's why 'just try harder' rarely works as advice.",
-        "Practical takeaway: if you keep delaying a specific task, ask yourself 'why does this trigger a bad feeling?' rather than 'why am I lazy?' — the first question is far more useful."
-      ],
-      source: "Source: European Psychologist, 2013 — Katrin B. Klingsieck"
-    },
-    uz: {
-      title: "Kechiktirish (prokrastinatsiya) haqida 40 yillik tadqiqotlar nima deydi?",
-      excerpt: "Paderborn universiteti tadqiqotchisi doktor Katrin Klingsieckning tizimli tahlili: kechiktirish shunchaki \"dangasalik\" emas, chuqurroq psixologik jarayon.",
+        "Dr. Katrin Klingsieck reviewed four decades of research: procrastination isn't laziness, it's a deliberate delay made despite knowing it will backfire.",
+        "The real driver is usually negative emotions attached to the task, not the task itself. That's why 'just try harder' rarely works.",
+        "Takeaway: ask 'why does this trigger a bad feeling?' rather than 'why am I lazy?'" ],
+      source: "Source: European Psychologist, 2013 — Katrin B. Klingsieck" },
+    uz: { title: "Kechiktirish haqida 40 yillik tadqiqotlar nima deydi?",
+      excerpt: "Paderborn universiteti tadqiqotchisi doktor Katrin Klingsieckning tizimli tahlili: kechiktirish shunchaki dangasalik emas.",
       body: [
-        "Nemis olimasi doktor Katrin Klingsieck 40 yillik prokrastinatsiya tadqiqotlarini tahlil qilib, muhim xulosaga keldi: kechiktirish oddiy dangasalik emas — bu ataylab qilingan, lekin oqibatlari haqida bila turib qilingan kechiktirishdir.",
-        "Uning tadqiqotiga ko'ra, kechiktirishning asosiy sababi ko'pincha vazifaning o'zi emas, balki unga bog'liq salbiy his-tuyg'ular. Shuning uchun \"ko'proq harakat qiling\" kabi maslahatlar kamdan kam ishlaydi.",
-        "Amaliy xulosa: agar biror vazifani doimo kechiktirayotgan bo'lsangiz, o'zingizga \"nega bu menda salbiy his uyg'otadi?\" deb savol bering."
-      ],
-      source: "Manba: European Psychologist, 2013 — Katrin B. Klingsieck"
-    }
-  }
+        "Doktor Katrin Klingsieck 40 yillik tadqiqotlarni tahlil qildi: kechiktirish oddiy dangasalik emas, bu bila turib qilingan kechikishdir.",
+        "Asosiy sabab ko'pincha vazifaga bog'liq salbiy his-tuyg'ular, vazifaning o'zi emas.",
+        "Xulosa: \"nega dangasaman\" o'rniga \"nega bu menda salbiy his uyg'otadi\" deb so'rang." ],
+      source: "Manba: European Psychologist, 2013 — Katrin B. Klingsieck" } }
 ];
 
-/* ============ Correspondence: real researcher replies ============ */
 const CORRESPONDENCE = [
-  {
-    name: "Dr. Jared Saletin",
-    inst: { en: "Brown University — Sleep & Memory Lab", uz: "Braun universiteti — Uyqu va xotira laboratoriyasi" },
+  { name: "Dr. Jared Saletin", inst: { en: "Brown University — Sleep & Memory Lab", uz: "Braun universiteti — Uyqu va xotira laboratoriyasi" },
     topic: { en: "Memory discrimination", uz: "Xotira farqlanishi" },
-    text: {
-      en: "Author of the sleep-restriction study behind our memory article. Contacted directly with a question on his findings; his research forms the basis of the 'similar concepts' article on this site.",
-      uz: "Xotira maqolamiz asosidagi uyqu-cheklash tadqiqoti muallifi. To'g'ridan-to'g'ri savol bilan murojaat qilindi; uning tadqiqoti saytdagi \"o'xshash tushunchalar\" maqolasiga asos bo'ldi."
-    }
-  },
-  {
-    name: "Dr. Stijn Massar",
-    inst: { en: "National University of Singapore", uz: "Singapur Milliy universiteti (NUS)" },
+    text: { en: "Author of the sleep-restriction study behind our memory article.", uz: "Xotira maqolamiz asosidagi uyqu-cheklash tadqiqoti muallifi." } },
+  { name: "Dr. Stijn Massar", inst: { en: "National University of Singapore", uz: "Singapur Milliy universiteti (NUS)" },
     topic: { en: "Bedtime procrastination", uz: "Yotishni kechiktirish" },
-    text: {
-      en: "Replied twice. Gave a full experimental protocol for testing whether bedtime-intention prompts improve sleep timing in teens — the basis for our 'writing down your bedtime intention' article.",
-      uz: "Ikki marta javob berdi. O'smirlarda \"yotish niyati\" eslatmalari uyqu vaqtiga ta'sir qilishini tekshirish uchun to'liq tajriba dizaynini berdi — bu saytimizdagi tegishli maqolaga asos bo'ldi."
-    }
-  },
-  {
-    name: "Dr. Ju Lynn Ong",
-    inst: { en: "National University of Singapore", uz: "Singapur Milliy universiteti (NUS)" },
+    text: { en: "Gave a full experimental protocol for testing bedtime-intention prompts.", uz: "Yotish niyati eslatmalarini tekshirish uchun to'liq tajriba dizaynini berdi." } },
+  { name: "Dr. Ju Lynn Ong", inst: { en: "National University of Singapore", uz: "Singapur Milliy universiteti (NUS)" },
     topic: { en: "Sleep thresholds", uz: "Uyqu chegaralari" },
-    text: {
-      en: "Shared concrete, usable thresholds for sleep duration and cognitive performance — the 8-hour and 6.5-hour markers used throughout Nuro's sleep-tracking guidance.",
-      uz: "Uyqu davomiyligi va kognitiv faoliyat bo'yicha aniq, amaliy chegaralarni taqdim etdi — 8 soat va 6.5 soatlik ko'rsatkichlar Nuroning uyqu kuzatish tavsiyalarida qo'llaniladi."
-    }
-  },
-  {
-    name: "Dr. Nilüfer Oral",
-    inst: { en: "NUS Centre for International Law · UN International Law Commission", uz: "NUS Xalqaro huquq markazi · BMT Xalqaro huquq komissiyasi" },
+    text: { en: "Shared concrete thresholds for sleep duration and cognitive performance, plus a validated chronotype instrument.", uz: "Uyqu davomiyligi bo'yicha aniq chegaralarni, shuningdek tasdiqlangan xronotip vositasini taqdim etdi." } },
+  { name: "Dr. Nilüfer Oral", inst: { en: "NUS CIL · UN ILC", uz: "NUS Xalqaro huquq markazi · BMT XHK" },
     topic: { en: "International law & statehood", uz: "Xalqaro huquq va davlatchilik" },
-    text: {
-      en: "Replied personally while on leave. Explained how international law extends existing doctrine by analogy rather than inventing new rules — a framework now shaping a separate research thread on Central Asian statehood.",
-      uz: "Ta'tilda bo'lishiga qaramay shaxsan javob berdi. Xalqaro huquq yangi qoidalar yaratish o'rniga mavjud doktrinani analogiya orqali kengaytirishini tushuntirdi — bu Markaziy Osiyo davlatchiligi bo'yicha alohida tadqiqot yo'nalishiga asos bo'lmoqda."
-    }
-  },
-  {
-    name: "iCanStudy Team (for Justin Sung)",
-    inst: { en: "Learning science coaching platform", uz: "O'qitish ilmiy platformasi" },
+    text: { en: "Replied personally while on leave — extension-by-analogy framework.", uz: "Ta'tilda bo'lishiga qaramay shaxsan javob berdi." } },
+  { name: "iCanStudy Team", inst: { en: "Learning science coaching platform", uz: "O'qitish ilmiy platformasi" },
     topic: { en: "Active recall", uz: "Faol eslash" },
-    text: {
-      en: "Education coordinator Lyza engaged seriously with a question on detecting shallow active recall, and forwarded an interview request to the team.",
-      uz: "Ta'lim koordinatori Lyza faol eslashning \"sayoz\" turini aniqlash bo'yicha savolga jiddiy javob berdi va intervyu so'rovini jamoaga uzatdi."
-    }
-  },
-  {
-    name: "Prof. Maria Adele Carrai",
-    inst: { en: "University of Oxford — Mapping Global China", uz: "Oksford universiteti — Mapping Global China loyihasi" },
+    text: { en: "Engaged seriously with a question on detecting shallow active recall.", uz: "Faol eslashning \"sayoz\" turini aniqlash bo'yicha savolga jiddiy javob berdi." } },
+  { name: "Prof. Maria Adele Carrai", inst: { en: "University of Oxford", uz: "Oksford universiteti" },
     topic: { en: "China–Central Asia relations", uz: "Xitoy–Markaziy Osiyo munosabatlari" },
-    text: {
-      en: "Assigned an active research task: mapping Chinese company activity in Uzbekistan. Also invited us to attend her upcoming lectures in Tashkent.",
-      uz: "Aniq tadqiqot vazifasini berdi: O'zbekistondagi xitoy kompaniyalari faoliyatini xaritalash. Shuningdek, Toshkentdagi yaqinlashib kelayotgan ma'ruzalariga taklif qildi."
-    }
-  },
-  {
-    name: "Prof. Armin Cuyvers",
-    inst: { en: "Leiden University — EU Constitutional Law", uz: "Leyden universiteti — EI konstitutsiyaviy huquqi" },
+    text: { en: "Assigned a real research task and invited us to her Tashkent lectures.", uz: "Aniq tadqiqot vazifasini berdi va Toshkentdagi ma'ruzalariga taklif qildi." } },
+  { name: "Prof. Armin Cuyvers", inst: { en: "Leiden University", uz: "Leyden universiteti" },
     topic: { en: "Comparative regionalism", uz: "Qiyosiy regionalizm" },
-    text: {
-      en: "Suggested that regional blocs like the EAEU should be assessed by narrow, technocratic 'islands' of shared governance rather than by comparison to the full EU model.",
-      uz: "EAEU kabi mintaqaviy bloklarni to'liq EI modeli bilan solishtirish o'rniga, tor, texnokratik boshqaruv \"orollari\" orqali baholashni taklif qildi."
-    }
-  },
-  {
-    name: "Dr. Louise David",
-    inst: { en: "Maastricht University", uz: "Maastrixt universiteti" },
+    text: { en: "Called the question 'not out of place in a masters course.'", uz: "Savolni \"magistratura darajasida\" deb baholadi." } },
+  { name: "Dr. Louise David", inst: { en: "Maastricht University", uz: "Maastrixt universiteti" },
     topic: { en: "Desirable difficulty", uz: "Foydali qiyinchilik" },
-    text: {
-      en: "Explained the 'experienced vs. actual learning paradox' — why effortful studying often feels like failure even when it's working — the basis for our study-habits article.",
-      uz: "\"His qilingan va haqiqiy o'rganish paradoksi\"ni tushuntirdi — nega qiyin o'qish usuli ishlab turgan bo'lsa ham, muvaffaqiyatsizlikdek tuyulishini. Bu saytimizdagi o'quv odatlari maqolasiga asos bo'ldi."
-    }
-  },
-  {
-    name: "Lena Mareen Grabo",
-    inst: { en: "University of Duisburg-Essen", uz: "Duisburg-Essen universiteti" },
-    topic: { en: "Bedtime procrastination & rumination", uz: "Yotishni kechiktirish va ruminatsiya" },
-    text: {
-      en: "Explained that rumination can be a temporary state, not just a fixed trait — meaning bedtime procrastination may need a brief in-the-moment intervention, not just a reminder.",
-      uz: "Ruminatsiya doimiy xususiyat emas, balki vaqtinchalik holat ham bo'lishi mumkinligini tushuntirdi — bu yotishni kechiktirish uchun shunchaki eslatma emas, balki o'sha lahzadagi qisqa yordam kerakligini anglatadi."
-    }
-  },
-  {
-    name: "Camilla Scaramuzza",
-    inst: { en: "G. D'Annunzio University Chieti-Pescara — BIND Center", uz: "G. D'Annunzio universiteti — BIND markazi" },
+    text: { en: "Explained the 'experienced vs. actual learning paradox.'", uz: "\"His qilingan va haqiqiy o'rganish paradoksi\"ni tushuntirdi." } },
+  { name: "Camilla Scaramuzza", inst: { en: "G. D'Annunzio University Chieti-Pescara", uz: "G. D'Annunzio universiteti" },
     topic: { en: "Neurofeedback in sport", uz: "Sportda neyrofeedback" },
-    text: {
-      en: "Sent a full literature review with citations and two research papers, explaining that athletes can train brain activity, but reliably triggering it on demand under competition pressure remains unproven.",
-      uz: "Iqtiboslar va ikkita tadqiqot maqolasi bilan to'liq adabiyot sharhini yubordi: sportchilar miya faoliyatini mashq qildira oladi, lekin buni musobaqa bosimida ishonchli ravishda ishga tushirish hali isbotlanmagan."
-    }
-  },
-  {
-    name: "Gianluca Di Pinto",
-    inst: { en: "G. D'Annunzio University Chieti-Pescara", uz: "G. D'Annunzio universiteti (Chieti-Pescara)" },
+    text: { en: "Sent a full literature review with citations and two research papers.", uz: "Iqtiboslar va ikkita tadqiqot maqolasi bilan to'liq adabiyot sharhini yubordi." } },
+  { name: "Gianluca Di Pinto", inst: { en: "G. D'Annunzio University Chieti-Pescara", uz: "G. D'Annunzio universiteti" },
     topic: { en: "Stress-recovery balance", uz: "Stress-tiklanish balansi" },
-    text: {
-      en: "Explained the stress-recovery continuum framework and flagged weight-cutting and short recovery windows as genuinely under-studied factors specific to combat sports.",
-      uz: "Stress-tiklanish uzluksizligi modelini tushuntirdi va vazn tashlash hamda qisqa tiklanish oynalarini kurash sportiga xos, hali yetarli o'rganilmagan omillar sifatida ko'rsatdi."
-    }
-  },
+    text: { en: "Explained the stress-recovery continuum framework.", uz: "Stress-tiklanish uzluksizligi modelini tushuntirdi." } },
+  { name: "Lena Mareen Grabo", inst: { en: "University of Duisburg-Essen", uz: "Duisburg-Essen universiteti" },
+    topic: { en: "Rumination & procrastination", uz: "Ruminatsiya va prokrastinatsiya" },
+    text: { en: "Explained rumination can be a temporary state, not just a fixed trait.", uz: "Ruminatsiya doimiy xususiyat emas, balki vaqtinchalik holat ham bo'lishi mumkinligini tushuntirdi." } }
 ];
 
-/* ============ Downloadable original papers (PDF) ============ */
 const PAPERS = [
-  {
-    file: "pdfs/saletin-ohora-2026-adolescent-sleep.pdf",
-    tag: "SLEEP",
-    authors: "Kathleen P. O'Hora & Jared M. Saletin — Brown University, 2026",
+  { file: "pdfs/saletin-ohora-2026-adolescent-sleep.pdf", tag: "SLEEP",
+    authors: "O'Hora & Saletin — Brown University, 2026",
     title: { en: "Adolescent sleep: a bulwark for healthy brain development", uz: "O'smirlar uyqusi: sog'lom miya rivojlanishining tayanchi" },
-    blurb: {
-      en: "A 2026 editorial on how adolescent sleep loss intersects with critical brain maturation — the same lab behind our memory-discrimination article.",
-      uz: "2026-yilgi tahririy maqola: o'smirlarda uyqu yetishmasligi muhim miya rivojlanish davri bilan qanday kesishishi haqida — bu xotira maqolamiz asosidagi laboratoriya."
-    }
-  },
-  {
-    file: "pdfs/gao-sakhnini-2025-procrastination.pdf",
-    tag: "ARXIV",
-    authors: "Alice Gao & Victoria Sakhnini — University of Toronto / Waterloo, 2025",
-    title: { en: "Reducing Procrastination on Programming Assignments via Optional Early Feedback", uz: "Ixtiyoriy erta fikr-mulohaza orqali topshiriqlarni kechiktirishni kamaytirish" },
-    blurb: {
-      en: "A real classroom intervention: optional early deadlines with automated feedback (no grade penalty) measurably reduced last-minute submissions.",
-      uz: "Haqiqiy sinf tajribasi: baholanmaydigan, ixtiyoriy erta muddatlar va avtomatik fikr-mulohaza oxirgi daqiqada topshirishni sezilarli kamaytirdi."
-    }
-  },
-  {
-    file: "pdfs/gross-2024-phd-procrastination.pdf",
-    tag: "IJDS",
-    authors: "Samuel Gross et al. — Goethe University Frankfurt, 2024",
-    title: { en: "The Procrastinating PhD Student: A Latent Profile Analysis", uz: "Kechiktiruvchi PhD talaba: yashirin profil tahlili" },
-    blurb: {
-      en: "Identifies distinct 'types' of procrastinators among graduate students — useful for recognizing your own specific pattern rather than a generic label.",
-      uz: "Aspirantlar orasida kechiktirishning turli \"turlari\"ni aniqlaydi — umumiy yorliq o'rniga o'zingizning aniq naqshingizni tanib olish uchun foydali."
-    }
-  },
-  {
-    file: "pdfs/yu-2025-neurofeedback-sport.pdf",
-    tag: "SJMSS",
-    authors: "Chien-Lin Yu et al. — Scandinavian Journal of Medicine & Science in Sports, 2025",
-    title: { en: "The Effect of EEG Neurofeedback Training on Sport Performance", uz: "EEG neyrofeedback treningining sport natijalariga ta'siri" },
-    blurb: {
-      en: "The most current meta-analysis on whether athletes can train their brain activity to improve performance — shared directly by a PhD researcher in sport neuroscience.",
-      uz: "Sportchilar miya faoliyatini mashq qildirib natijalarni yaxshilay olishimi haqidagi eng so'nggi meta-tahlil — sport neyrofani bo'yicha PhD tadqiqotchisi tomonidan bevosita yuborilgan."
-    }
-  },
-  {
-    file: "pdfs/kroese-2014-bedtime-procrastination.pdf",
-    tag: "FRONT",
-    authors: "Floor M. Kroese et al. — Utrecht University, Frontiers in Psychology, 2014",
-    title: { en: "Bedtime Procrastination: Introducing a New Area of Procrastination", uz: "Yotishni kechiktirish: prokrastinatsiyaning yangi yo'nalishi" },
-    blurb: {
-      en: "The foundational paper that first defined \"bedtime procrastination\" as its own concept — the same phenomenon a researcher recently helped us understand at the mechanism level (rumination, not willpower).",
-      uz: "\"Yotishni kechiktirish\" tushunchasini birinchi marta alohida hodisa sifatida belgilagan asosiy maqola — bu bizga yaqinda bir tadqiqotchi mexanizm darajasida (irodasizlik emas, balki ruminatsiya) tushuntirgan hodisaning o'zi."
-    }
-  },
-  {
-    file: "pdfs/cred-nf-checklist-ros-2020.pdf",
-    tag: "BRAIN",
-    authors: "Tomas Ros et al. (80+ researchers) — Brain, 2020",
-    title: { en: "Consensus on Reporting and Design of Neurofeedback Studies (CRED-nf)", uz: "Neyrofeedback tadqiqotlari uchun konsensus qoidalari (CRED-nf)" },
-    blurb: {
-      en: "The field-wide standard over 80 neurofeedback researchers agreed on, for judging whether a study is methodologically trustworthy.",
-      uz: "80 dan ortiq neyrofeedback tadqiqotchisi kelishib olgan, bir tadqiqotning metodologik jihatdan ishonchli ekanligini baholash uchun standart."
-    }
-  },
+    blurb: { en: "A 2026 editorial on adolescent sleep loss and brain maturation.", uz: "O'smirlarda uyqu yetishmasligi va miya rivojlanishi haqida tahririy maqola." } },
+  { file: "pdfs/gao-sakhnini-2025-procrastination.pdf", tag: "ARXIV",
+    authors: "Gao & Sakhnini — Toronto/Waterloo, 2025",
+    title: { en: "Reducing Procrastination via Optional Early Feedback", uz: "Ixtiyoriy erta fikr-mulohaza orqali kechiktirishni kamaytirish" },
+    blurb: { en: "A real classroom intervention that measurably reduced last-minute submissions.", uz: "Oxirgi daqiqada topshirishni sezilarli kamaytirgan haqiqiy sinf tajribasi." } },
+  { file: "pdfs/gross-2024-phd-procrastination.pdf", tag: "IJDS",
+    authors: "Gross et al. — Goethe University Frankfurt, 2024",
+    title: { en: "The Procrastinating PhD Student", uz: "Kechiktiruvchi PhD talaba" },
+    blurb: { en: "Identifies distinct 'types' of procrastinators among graduate students.", uz: "Aspirantlar orasida kechiktirishning turli \"turlari\"ni aniqlaydi." } },
+  { file: "pdfs/yu-2025-neurofeedback-sport.pdf", tag: "SJMSS",
+    authors: "Yu et al. — Scand. J. Med. Sci. Sports, 2025",
+    title: { en: "EEG Neurofeedback Training on Sport Performance", uz: "EEG neyrofeedback treningi va sport natijalari" },
+    blurb: { en: "The most current meta-analysis on whether athletes can train their brain to perform better.", uz: "Sportchilar miyasini mashq qildirib natijalarni yaxshilay olishi haqidagi eng so'nggi meta-tahlil." } },
+  { file: "pdfs/cred-nf-checklist-ros-2020.pdf", tag: "BRAIN",
+    authors: "Ros et al. (80+ researchers) — Brain, 2020",
+    title: { en: "Consensus on Neurofeedback Study Design (CRED-nf)", uz: "Neyrofeedback tadqiqotlari uchun konsensus (CRED-nf)" },
+    blurb: { en: "The field-wide standard for judging neurofeedback study trustworthiness.", uz: "Neyrofeedback tadqiqotining ishonchliligini baholash standarti." } },
+  { file: "pdfs/kroese-2014-bedtime-procrastination.pdf", tag: "FRONT",
+    authors: "Kroese et al. — Utrecht University, 2014",
+    title: { en: "Bedtime Procrastination: A New Area of Procrastination", uz: "Yotishni kechiktirish: prokrastinatsiyaning yangi yo'nalishi" },
+    blurb: { en: "The foundational paper that first defined bedtime procrastination.", uz: "\"Yotishni kechiktirish\" tushunchasini birinchi belgilagan asosiy maqola." } }
 ];
-
-function renderPapers() {
-  const grid = document.getElementById('papersGrid');
-  grid.innerHTML = PAPERS.map(p => `
-    <div class="paper-card">
-      <div class="paper-icon">PDF</div>
-      <h3>${p.title[currentLang]}</h3>
-      <div class="authors">${p.authors}</div>
-      <p class="blurb">${p.blurb[currentLang]}</p>
-      <a class="paper-download" href="${p.file}" download>${t('paper.download')} ↓</a>
-    </div>
-  `).join('');
-}
-
-function renderTopics() {
-  const grid = document.getElementById('topicsGrid');
-  const cats = Object.keys(CATEGORY_META);
-  grid.innerHTML = cats.map(cat => {
-    const meta = CATEGORY_META[cat];
-    return `<div class="topic-chip" style="--topic-color:${meta.color}" data-cat="${cat}"><span class="dot"></span>${meta[currentLang]}</div>`;
-  }).join('');
-  grid.querySelectorAll('.topic-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const cat = chip.dataset.cat;
-      currentFilter = cat;
-      document.querySelectorAll('.filter-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
-      renderGrid();
-      document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-}
-
-function renderFeatured() {
-  const strip = document.getElementById('featuredStrip');
-  const featured = ARTICLES.slice(0, 3);
-  strip.innerHTML = featured.map(article => {
-    const meta = CATEGORY_META[article.cat];
-    const content = article[currentLang];
-    return `
-      <div class="featured-card" style="--card-accent:${meta.color}">
-        <div class="meta-row"><span class="dot"></span>${meta[currentLang]}</div>
-        <h4>${content.title}</h4>
-      </div>
-    `;
-  }).join('');
-  Array.from(strip.children).forEach((card, i) => {
-    card.addEventListener('click', () => openArticle(featured[i]));
-  });
-}
-
-function renderCorrespondence() {
-  const list = document.getElementById('corrList');
-  list.innerHTML = CORRESPONDENCE.map(c => `
-    <div class="corr-item">
-      <div class="corr-who">
-        <div class="name">${c.name}</div>
-        <div class="inst">${c.inst[currentLang]}</div>
-      </div>
-      <div class="corr-what">
-        <span class="topic-tag">${c.topic[currentLang]}</span>
-        <p>${c.text[currentLang]}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
 
 let currentLang = 'en';
 let currentFilter = 'all';
 
-function t(key) {
-  return I18N[currentLang][key] || key;
-}
+function t(key) { return I18N[currentLang][key] || key; }
 
 function applyStaticI18n() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.innerHTML = t(key);
-  });
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n')); });
 }
 
 function renderGrid() {
   const grid = document.getElementById('grid');
-  grid.innerHTML = '';
   const filtered = currentFilter === 'all' ? ARTICLES : ARTICLES.filter(a => a.cat === currentFilter);
-  document.getElementById('filterCount').textContent = `${filtered.length} / ${ARTICLES.length}`;
-
-  filtered.forEach(article => {
+  grid.innerHTML = filtered.map(article => {
     const meta = CATEGORY_META[article.cat];
-    const content = article[currentLang];
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.setProperty('--card-accent', meta.color);
-    card.innerHTML = `
-      <div class="card-tag">${meta[currentLang]}</div>
-      <h2>${content.title}</h2>
-      <p class="excerpt">${content.excerpt}</p>
-      <div class="card-meta">
-        <span>${t('card.translation')}</span>
-        <span class="read">${t('card.read')} →</span>
-      </div>
-    `;
-    card.addEventListener('click', () => openArticle(article));
-    grid.appendChild(card);
+    const c = article[currentLang];
+    return `
+      <div class="card" data-id="${article.id}">
+        <div class="card-tag" style="--tag-color:${meta.color};--tag-bg:${meta.bg}">${meta[currentLang]}</div>
+        <h3>${c.title}</h3>
+        <p class="excerpt">${c.excerpt}</p>
+        <div class="card-meta"><span>${t('card.translation')}</span><span class="read">${t('card.read')} →</span></div>
+      </div>`;
+  }).join('');
+  grid.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => openArticle(ARTICLES.find(a => a.id == card.dataset.id)));
   });
 }
 
 function openArticle(article) {
   const meta = CATEGORY_META[article.cat];
-  const content = article[currentLang];
-  const container = document.getElementById('articleFull');
-  container.innerHTML = `
-    <button class="close-btn" id="closeBtn" aria-label="Close">✕</button>
-    <div class="card-tag" style="color:${meta.color}">${meta[currentLang]}</div>
-    <h2>${content.title}</h2>
-    <div class="full-body">${content.body.map(p => `<p>${p}</p>`).join('')}</div>
-    <div class="source">${content.source}</div>
-  `;
+  const c = article[currentLang];
+  document.getElementById('articleFull').innerHTML = `
+    <button class="close-btn" id="closeBtn">✕</button>
+    <div class="card-tag" style="--tag-color:${meta.color};--tag-bg:${meta.bg}">${meta[currentLang]}</div>
+    <h2>${c.title}</h2>
+    <div class="full-body">${c.body.map(p => `<p>${p}</p>`).join('')}</div>
+    <div class="source">${c.source}</div>`;
   document.getElementById('overlay').classList.add('open');
   document.getElementById('closeBtn').addEventListener('click', closeArticle);
 }
+function closeArticle() { document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeArticle(); });
 
-function closeArticle() {
-  document.getElementById('overlay').classList.remove('open');
+function renderCorrespondence() {
+  document.getElementById('corrList').innerHTML = CORRESPONDENCE.map(c => `
+    <div class="corr-item">
+      <div class="corr-who"><div class="name">${c.name}</div><div class="inst">${c.inst[currentLang]}</div></div>
+      <div class="corr-what"><span class="topic-tag">${c.topic[currentLang]}</span><p>${c.text[currentLang]}</p></div>
+    </div>`).join('');
 }
 
-document.getElementById('overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'overlay') closeArticle();
-});
+function renderPapers() {
+  document.getElementById('papersGrid').innerHTML = PAPERS.map(p => `
+    <div class="paper-card">
+      <div class="paper-icon">PDF</div>
+      <h4>${p.title[currentLang]}</h4>
+      <div class="authors">${p.authors}</div>
+      <p class="blurb">${p.blurb[currentLang]}</p>
+      <a class="paper-download" href="${p.file}" download>${t('paper.download')} ↓</a>
+    </div>`).join('');
+}
 
-document.getElementById('filters').addEventListener('click', (e) => {
+document.getElementById('filters').addEventListener('click', e => {
   if (!e.target.classList.contains('filter-pill')) return;
   document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
   e.target.classList.add('active');
@@ -1415,191 +488,32 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
     currentLang = btn.dataset.lang;
     document.documentElement.lang = currentLang;
     applyStaticI18n();
-    document.querySelectorAll('.filter-pill').forEach(p => {
-      const cat = p.dataset.cat;
-      if (cat !== 'all') p.textContent = CATEGORY_META[cat][currentLang];
-    });
-    renderGrid();
-    renderTopics();
-    renderFeatured();
-    renderCorrespondence();
-    renderPapers();
-    if (document.getElementById('overlay').classList.contains('open')) {
-      closeArticle();
-    }
+    document.querySelectorAll('.filter-pill').forEach(p => { if (p.dataset.cat !== 'all') p.textContent = CATEGORY_META[p.dataset.cat][currentLang]; });
+    renderGrid(); renderCorrespondence(); renderPapers();
+    if (document.getElementById('overlay').classList.contains('open')) closeArticle();
+  });
+});
+
+document.querySelectorAll('.sidebar-icon[data-target]').forEach(icon => {
+  icon.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-icon[data-target]').forEach(i => i.classList.remove('active'));
+    icon.classList.add('active');
+    const target = document.getElementById(icon.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('#grid .card').forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 });
 
 applyStaticI18n();
 renderGrid();
-renderTopics();
-renderFeatured();
 renderCorrespondence();
 renderPapers();
-
-/* ============ 3D Brain Model (Three.js, procedural — no external assets) ============ */
-(function initBrainModel() {
-  const canvas = document.getElementById('neuralCanvas');
-  if (!window.THREE || !canvas) return;
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 1, 32);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  const group = new THREE.Group();
-  group.position.set(9, -1, -4);
-  scene.add(group);
-
-  // Layered "noise" (sum of sines at multiple frequencies) — mimics cortical
-  // folding (gyri/sulci) at multiple scales, no external noise library needed.
-  function noise(x, y, z, scale) {
-    const s = scale || 1;
-    return (
-      Math.sin(x * 4.2 * s) * Math.cos(y * 3.7 * s) +
-      Math.sin(y * 3.9 * s + 1.3) * Math.cos(z * 4.3 * s) +
-      Math.sin(z * 4.6 * s + 2.1) * Math.cos(x * 3.5 * s)
-    ) / 3;
-  }
-
-  function makeWireAndPoints(geo, wireOpacity, pointStride, pointSize) {
-    const wireGeo = new THREE.WireframeGeometry(geo);
-    const wireMesh = new THREE.LineSegments(
-      wireGeo,
-      new THREE.LineBasicMaterial({ color: 0xC9CACD, transparent: true, opacity: wireOpacity })
-    );
-    const pos = geo.attributes.position;
-    const pArr = [];
-    for (let i = 0; i < pos.count; i += pointStride) {
-      pArr.push(pos.getX(i), pos.getY(i), pos.getZ(i));
-    }
-    const pointsGeo = new THREE.BufferGeometry();
-    pointsGeo.setAttribute('position', new THREE.Float32BufferAttribute(pArr, 3));
-    const points = new THREE.Points(
-      pointsGeo,
-      new THREE.PointsMaterial({ color: 0xF4F4F2, size: pointSize, transparent: true, opacity: 0.7 })
-    );
-    const sub = new THREE.Group();
-    sub.add(wireMesh);
-    sub.add(points);
-    return sub;
-  }
-
-  // ---------- Cerebrum: recognizable side-profile silhouette ----------
-  const cerebrumGeo = new THREE.IcosahedronGeometry(9.2, 5);
-  {
-    const pos = cerebrumGeo.attributes.position;
-    const v = new THREE.Vector3();
-    for (let i = 0; i < pos.count; i++) {
-      v.fromBufferAttribute(pos, i);
-      const n = v.clone().normalize();
-
-      v.x *= 1.28;
-      v.y *= 0.92;
-      v.z *= 0.62;
-
-      const frontal = 1 + 0.14 * Math.max(0, n.x);
-      const occipital = 1 - 0.20 * Math.pow(Math.max(0, -n.x), 1.6);
-      v.multiplyScalar(frontal * occipital);
-
-      if (n.y < -0.05 && n.y > -0.55 && n.x > -0.25 && n.x < 0.55) {
-        v.addScaledVector(n, 0.85);
-        v.y -= 0.35;
-      }
-
-      if (n.y < -0.35) v.y *= 0.72;
-
-      const bump = (noise(n.x, n.y, n.z, 1.0) * 0.55 + noise(n.x, n.y, n.z, 2.3) * 0.45) * 0.8;
-      v.addScaledVector(n, bump);
-
-      pos.setXYZ(i, v.x, v.y, v.z);
-    }
-    cerebrumGeo.computeVertexNormals();
-  }
-  const cerebrum = makeWireAndPoints(cerebrumGeo, 0.16, 11, 0.1);
-  group.add(cerebrum);
-
-  // ---------- Cerebellum: smaller, densely-folded, clearly separate ----------
-  const cerebellumGeo = new THREE.IcosahedronGeometry(3.1, 4);
-  {
-    const pos = cerebellumGeo.attributes.position;
-    const v = new THREE.Vector3();
-    for (let i = 0; i < pos.count; i++) {
-      v.fromBufferAttribute(pos, i);
-      const n = v.clone().normalize();
-      v.x *= 0.85;
-      v.y *= 0.78;
-      const bump = noise(n.x, n.y, n.z, 3.2) * 0.32;
-      v.addScaledVector(n, bump);
-      pos.setXYZ(i, v.x, v.y, v.z);
-    }
-    cerebellumGeo.computeVertexNormals();
-  }
-  const cerebellum = makeWireAndPoints(cerebellumGeo, 0.22, 5, 0.08);
-  cerebellum.position.set(-4.6, -4.4, 1.6);
-  group.add(cerebellum);
-
-  // ---------- Brainstem ----------
-  const stemGeo = new THREE.CylinderGeometry(0.85, 1.3, 4.2, 12, 6, true);
-  const stemWire = new THREE.LineSegments(
-    new THREE.WireframeGeometry(stemGeo),
-    new THREE.LineBasicMaterial({ color: 0xC9CACD, transparent: true, opacity: 0.2 })
-  );
-  stemWire.position.set(-2.0, -6.6, 1.2);
-  stemWire.rotation.z = 0.25;
-  group.add(stemWire);
-
-  // ---------- Faint inner structure loop ----------
-  const innerCurvePts = [];
-  const innerCount = 64;
-  for (let i = 0; i < innerCount; i++) {
-    const t = (i / innerCount) * Math.PI * 2;
-    innerCurvePts.push(new THREE.Vector3(
-      Math.cos(t) * 3.4 + 0.5,
-      Math.sin(t) * 1.4 - 0.6,
-      Math.sin(t * 2) * 0.6
-    ));
-  }
-  const innerGeo = new THREE.BufferGeometry().setFromPoints(innerCurvePts);
-  const innerLoop = new THREE.LineLoop(
-    innerGeo,
-    new THREE.LineBasicMaterial({ color: 0xE8E8E6, transparent: true, opacity: 0.3 })
-  );
-  group.add(innerLoop);
-
-  group.rotation.x = -0.1;
-  group.rotation.y = 0.65;
-
-  let mouseX = 0, mouseY = 0;
-  window.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-
-  function animate() {
-    requestAnimationFrame(animate);
-    group.rotation.y += 0.0014;
-    group.rotation.x += ((-0.1 + mouseY * 0.15) - group.rotation.x) * 0.02;
-
-    const t = Date.now() * 0.001;
-    [cerebrum, cerebellum].forEach((part, i) => {
-      const pts = part.children[1];
-      pts.material.opacity = 0.5 + Math.sin(t * 0.8 + i) * 0.2;
-    });
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-})();
 </script>
 
 </body>
