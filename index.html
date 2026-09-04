@@ -245,7 +245,148 @@
     display: block;
   }
 
-  /* ---------- Filters ---------- */
+  /* ---------- Topics grid (Huberman-style browse) ---------- */
+  .topics-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 32px 10px;
+    position: relative;
+    z-index: 5;
+  }
+  .topics-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    margin-bottom: 18px;
+  }
+  .topics-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .topic-chip {
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .topic-chip:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--topic-color, var(--gold));
+    color: var(--text);
+  }
+  .topic-chip .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--topic-color, var(--gold));
+  }
+
+  /* ---------- Featured strip (Huberman-style) ---------- */
+  .featured-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 46px 32px 0;
+    position: relative;
+    z-index: 5;
+  }
+  .featured-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    margin-bottom: 18px;
+  }
+  .featured-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .featured-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 22px;
+    backdrop-filter: blur(16px) saturate(150%);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .featured-card:hover { background: var(--glass-bg-hover); transform: translateY(-3px); border-color: var(--glass-border-bright); }
+  .featured-card .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--card-accent, var(--gold));
+    margin-bottom: 10px;
+  }
+  .featured-card .meta-row .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .featured-card h4 {
+    font-size: 1.02rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--text);
+  }
+
+  /* ---------- Mid-page CTA (Huberman newsletter-style) ---------- */
+  .cta-section {
+    max-width: 1200px;
+    margin: 60px auto 0;
+    padding: 0 32px;
+    position: relative;
+    z-index: 5;
+  }
+  .cta-box {
+    background: var(--glass-bg-hover);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 22px;
+    padding: 46px;
+    text-align: center;
+    backdrop-filter: blur(20px) saturate(150%);
+    box-shadow: var(--glass-shadow);
+  }
+  .cta-box h3 {
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .cta-box p {
+    color: var(--text-dim);
+    max-width: 46ch;
+    margin: 0 auto 24px;
+  }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    background: var(--gold);
+    color: #08090B;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: transform 0.2s;
+  }
+  .cta-btn:hover { transform: scale(1.04); }
+
+  @media (max-width: 780px) {
+    .featured-strip { grid-template-columns: 1fr; }
+  }
+
+
   .filters-section {
     background: linear-gradient(180deg, var(--bg) 0%, #0D0F13 100%);
     position: relative;
@@ -688,6 +829,16 @@
   <div class="scroll-hint"><div class="line"></div><span data-i18n="hero.scroll">SCROLL</span></div>
 </div>
 
+<div class="topics-section">
+  <div class="topics-header" data-i18n="topics.title">Browse by topic</div>
+  <div class="topics-grid" id="topicsGrid"></div>
+</div>
+
+<div class="featured-section">
+  <div class="featured-header" data-i18n="featured.title">Featured</div>
+  <div class="featured-strip" id="featuredStrip"></div>
+</div>
+
 <svg class="thread-divider" viewBox="0 0 1200 32" preserveAspectRatio="none" aria-hidden="true">
   <polyline points="0,16 30,4 60,28 90,4 120,28 150,4 180,28 210,4 240,28 270,4 300,28 330,4 360,28 390,4 420,28 450,4 480,28 510,4 540,28 570,4 600,28 630,4 660,28 690,4 720,28 750,4 780,28 810,4 840,28 870,4 900,28 930,4 960,28 990,4 1020,28 1050,4 1080,28 1110,4 1140,28 1170,4 1200,16"
     fill="none" stroke="#F0F0EE" stroke-width="1.5" opacity="0.4"/>
@@ -708,6 +859,14 @@
   </div>
 
   <div class="grid" id="grid"></div>
+</div>
+
+<div class="cta-section">
+  <div class="cta-box">
+    <h3 data-i18n="cta.title">Get new research digests as soon as they're posted</h3>
+    <p data-i18n="cta.sub">Join the Nuro Telegram channel — sleep science, memory research, and real replies from the scientists behind it, twice a week.</p>
+    <a class="cta-btn" href="https://t.me/nurobrain" target="_blank" data-i18n="cta.button">Join the Channel →</a>
+  </div>
 </div>
 
 <div class="corr-section">
@@ -758,6 +917,11 @@ const I18N = {
     'papers.title': 'Read the original papers, free and unedited',
     'papers.sub': "These are the full, open-access PDFs — not summaries. Download and read the actual research.",
     'paper.download': 'Download PDF',
+    'topics.title': 'Browse by topic',
+    'featured.title': 'Featured',
+    'cta.title': "Get new research digests as soon as they're posted",
+    'cta.sub': "Join the Nuro Telegram channel — sleep science, memory research, and real replies from the scientists behind it, twice a week.",
+    'cta.button': 'Join the Channel →',
   },
   uz: {
     'nav.channel': 'Telegram kanal',
@@ -777,6 +941,11 @@ const I18N = {
     'papers.title': "Original maqolalarni bepul, tahrirsiz o'qing",
     'papers.sub': "Bular to'liq, ochiq (bepul) PDF fayllar — qisqartma emas. Yuklab oling va asl tadqiqotni o'qing.",
     'paper.download': "PDF yuklab olish",
+    'topics.title': "Mavzu bo'yicha ko'rish",
+    'featured.title': "Tanlangan",
+    'cta.title': "Yangi tadqiqot xulosalarini birinchi bo'lib oling",
+    'cta.sub': "Nuro Telegram kanaliga qo'shiling — uyqu fani, xotira tadqiqotlari va olimlarning haqiqiy javoblari, haftasiga ikki marta.",
+    'cta.button': "Kanalga qo'shilish →",
   }
 };
 
@@ -1115,6 +1284,42 @@ function renderPapers() {
   `).join('');
 }
 
+function renderTopics() {
+  const grid = document.getElementById('topicsGrid');
+  const cats = Object.keys(CATEGORY_META);
+  grid.innerHTML = cats.map(cat => {
+    const meta = CATEGORY_META[cat];
+    return `<div class="topic-chip" style="--topic-color:${meta.color}" data-cat="${cat}"><span class="dot"></span>${meta[currentLang]}</div>`;
+  }).join('');
+  grid.querySelectorAll('.topic-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const cat = chip.dataset.cat;
+      currentFilter = cat;
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+      renderGrid();
+      document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+function renderFeatured() {
+  const strip = document.getElementById('featuredStrip');
+  const featured = ARTICLES.slice(0, 3);
+  strip.innerHTML = featured.map(article => {
+    const meta = CATEGORY_META[article.cat];
+    const content = article[currentLang];
+    return `
+      <div class="featured-card" style="--card-accent:${meta.color}">
+        <div class="meta-row"><span class="dot"></span>${meta[currentLang]}</div>
+        <h4>${content.title}</h4>
+      </div>
+    `;
+  }).join('');
+  Array.from(strip.children).forEach((card, i) => {
+    card.addEventListener('click', () => openArticle(featured[i]));
+  });
+}
+
 function renderCorrespondence() {
   const list = document.getElementById('corrList');
   list.innerHTML = CORRESPONDENCE.map(c => `
@@ -1215,6 +1420,8 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
       if (cat !== 'all') p.textContent = CATEGORY_META[cat][currentLang];
     });
     renderGrid();
+    renderTopics();
+    renderFeatured();
     renderCorrespondence();
     renderPapers();
     if (document.getElementById('overlay').classList.contains('open')) {
@@ -1225,6 +1432,8 @@ document.querySelectorAll('.lang-toggle button').forEach(btn => {
 
 applyStaticI18n();
 renderGrid();
+renderTopics();
+renderFeatured();
 renderCorrespondence();
 renderPapers();
 
