@@ -1443,122 +1443,135 @@ renderPapers();
   if (!window.THREE || !canvas) return;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 0, 30);
+  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 1, 32);
 
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   const group = new THREE.Group();
-  group.position.set(9, -2, -6);
+  group.position.set(9, -1, -4);
   scene.add(group);
 
-  // Layered "noise" (sum of sines at multiple frequencies) — mimics cortical folding
-  // (gyri/sulci) at multiple scales without needing an external noise library.
-  function bumpNoise(x, y, z) {
-    const fine = (
-      Math.sin(x * 4.2) * Math.cos(y * 3.7) +
-      Math.sin(y * 3.9 + 1.3) * Math.cos(z * 4.3) +
-      Math.sin(z * 4.6 + 2.1) * Math.cos(x * 3.5)
+  // Layered "noise" (sum of sines at multiple frequencies) — mimics cortical
+  // folding (gyri/sulci) at multiple scales, no external noise library needed.
+  function noise(x, y, z, scale) {
+    const s = scale || 1;
+    return (
+      Math.sin(x * 4.2 * s) * Math.cos(y * 3.7 * s) +
+      Math.sin(y * 3.9 * s + 1.3) * Math.cos(z * 4.3 * s) +
+      Math.sin(z * 4.6 * s + 2.1) * Math.cos(x * 3.5 * s)
     ) / 3;
-    const coarse = (
-      Math.sin(x * 1.3 + 0.5) * Math.cos(y * 1.1) +
-      Math.sin(y * 1.0 + 2.0) * Math.cos(z * 1.4)
-    ) / 2;
-    return fine * 0.4 + coarse * 0.6;
   }
 
-  function buildHemisphere(sign) {
-    const geo = new THREE.IcosahedronGeometry(8.6, 5);
-    const pos = geo.attributes.position;
-    const v = new THREE.Vector3();
-
-    for (let i = 0; i < pos.count; i++) {
-      v.fromBufferAttribute(pos, i);
-      const normal = v.clone().normalize();
-
-      // Brain-like silhouette: longer front-to-back (z) than tall (y),
-      // flatten the ventral (bottom) surface, bulge the frontal lobe (z > 0),
-      // taper toward the occipital/cerebellum area (z < 0).
-      v.z *= 1.35;
-      v.y *= 0.82;
-      if (normal.y < -0.15) {
-        v.y *= 0.55; // flatten the base where it would rest on a brainstem
-      }
-      const frontalBulge = 1 + 0.16 * Math.max(0, normal.z);
-      const occipitalTaper = 1 - 0.22 * Math.max(0, -normal.z) * Math.max(0, -normal.z);
-      v.multiplyScalar(frontalBulge * occipitalTaper);
-
-      // Temporal lobe: a subtle outward bulge on the lower-side surface
-      if (normal.y < 0.1 && normal.y > -0.5 && Math.abs(normal.x) > 0.3) {
-        v.addScaledVector(normal, 0.55);
-      }
-
-      // Cortical folding (gyri/sulci) — layered noise along the surface normal
-      const bump = bumpNoise(normal.x * 2.6, normal.y * 2.6, normal.z * 2.6) * 0.85;
-      v.addScaledVector(normal, bump);
-
-      // Central longitudinal fissure — deep groove separating the hemispheres
-      const distFromMid = Math.abs(v.x);
-      const groove = 1 - 0.62 * Math.exp(-Math.pow(distFromMid / 1.8, 2));
-      v.x *= groove;
-
-      // Push this hemisphere to one side, taper the flat inner (medial) face
-      v.x = v.x * 0.52 * sign + (8.6 * 0.36) * sign;
-
-      pos.setXYZ(i, v.x, v.y, v.z);
-    }
-    geo.computeVertexNormals();
-
+  function makeWireAndPoints(geo, wireOpacity, pointStride, pointSize) {
     const wireGeo = new THREE.WireframeGeometry(geo);
-    const wireMat = new THREE.LineBasicMaterial({
-      color: 0xC9CACD,
-      transparent: true,
-      opacity: 0.18,
-    });
-    const wireMesh = new THREE.LineSegments(wireGeo, wireMat);
-
-    // sparse glowing "synapse" points at a subset of vertices
-    const pointsGeo = new THREE.BufferGeometry();
+    const wireMesh = new THREE.LineSegments(
+      wireGeo,
+      new THREE.LineBasicMaterial({ color: 0xC9CACD, transparent: true, opacity: wireOpacity })
+    );
+    const pos = geo.attributes.position;
     const pArr = [];
-    for (let i = 0; i < pos.count; i += 11) {
+    for (let i = 0; i < pos.count; i += pointStride) {
       pArr.push(pos.getX(i), pos.getY(i), pos.getZ(i));
     }
+    const pointsGeo = new THREE.BufferGeometry();
     pointsGeo.setAttribute('position', new THREE.Float32BufferAttribute(pArr, 3));
-    const pointsMat = new THREE.PointsMaterial({
-      color: 0xF4F4F2,
-      size: 0.11,
-      transparent: true,
-      opacity: 0.75,
-    });
-    const points = new THREE.Points(pointsGeo, pointsMat);
-
+    const points = new THREE.Points(
+      pointsGeo,
+      new THREE.PointsMaterial({ color: 0xF4F4F2, size: pointSize, transparent: true, opacity: 0.7 })
+    );
     const sub = new THREE.Group();
     sub.add(wireMesh);
     sub.add(points);
     return sub;
   }
 
-  const left = buildHemisphere(-1);
-  const right = buildHemisphere(1);
-  group.add(left);
-  group.add(right);
+  // ---------- Cerebrum: recognizable side-profile silhouette ----------
+  const cerebrumGeo = new THREE.IcosahedronGeometry(9.2, 5);
+  {
+    const pos = cerebrumGeo.attributes.position;
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      const n = v.clone().normalize();
 
-  // faint connective "corpus callosum" threads between hemispheres
-  const bridgeMat = new THREE.LineBasicMaterial({ color: 0x8A8B8F, transparent: true, opacity: 0.2 });
-  const bridgePts = [];
-  for (let i = 0; i < 14; i++) {
-    const y = -5 + Math.random() * 10;
-    const z = -3 + Math.random() * 6;
-    bridgePts.push(-1.5, y, z, 1.5, y, z);
+      v.x *= 1.28;
+      v.y *= 0.92;
+      v.z *= 0.62;
+
+      const frontal = 1 + 0.14 * Math.max(0, n.x);
+      const occipital = 1 - 0.20 * Math.pow(Math.max(0, -n.x), 1.6);
+      v.multiplyScalar(frontal * occipital);
+
+      if (n.y < -0.05 && n.y > -0.55 && n.x > -0.25 && n.x < 0.55) {
+        v.addScaledVector(n, 0.85);
+        v.y -= 0.35;
+      }
+
+      if (n.y < -0.35) v.y *= 0.72;
+
+      const bump = (noise(n.x, n.y, n.z, 1.0) * 0.55 + noise(n.x, n.y, n.z, 2.3) * 0.45) * 0.8;
+      v.addScaledVector(n, bump);
+
+      pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    cerebrumGeo.computeVertexNormals();
   }
-  const bridgeGeo = new THREE.BufferGeometry();
-  bridgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(bridgePts, 3));
-  group.add(new THREE.LineSegments(bridgeGeo, bridgeMat));
+  const cerebrum = makeWireAndPoints(cerebrumGeo, 0.16, 11, 0.1);
+  group.add(cerebrum);
 
-  group.rotation.x = -0.15;
-  group.rotation.y = 0.5;
+  // ---------- Cerebellum: smaller, densely-folded, clearly separate ----------
+  const cerebellumGeo = new THREE.IcosahedronGeometry(3.1, 4);
+  {
+    const pos = cerebellumGeo.attributes.position;
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      const n = v.clone().normalize();
+      v.x *= 0.85;
+      v.y *= 0.78;
+      const bump = noise(n.x, n.y, n.z, 3.2) * 0.32;
+      v.addScaledVector(n, bump);
+      pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    cerebellumGeo.computeVertexNormals();
+  }
+  const cerebellum = makeWireAndPoints(cerebellumGeo, 0.22, 5, 0.08);
+  cerebellum.position.set(-4.6, -4.4, 1.6);
+  group.add(cerebellum);
+
+  // ---------- Brainstem ----------
+  const stemGeo = new THREE.CylinderGeometry(0.85, 1.3, 4.2, 12, 6, true);
+  const stemWire = new THREE.LineSegments(
+    new THREE.WireframeGeometry(stemGeo),
+    new THREE.LineBasicMaterial({ color: 0xC9CACD, transparent: true, opacity: 0.2 })
+  );
+  stemWire.position.set(-2.0, -6.6, 1.2);
+  stemWire.rotation.z = 0.25;
+  group.add(stemWire);
+
+  // ---------- Faint inner structure loop ----------
+  const innerCurvePts = [];
+  const innerCount = 64;
+  for (let i = 0; i < innerCount; i++) {
+    const t = (i / innerCount) * Math.PI * 2;
+    innerCurvePts.push(new THREE.Vector3(
+      Math.cos(t) * 3.4 + 0.5,
+      Math.sin(t) * 1.4 - 0.6,
+      Math.sin(t * 2) * 0.6
+    ));
+  }
+  const innerGeo = new THREE.BufferGeometry().setFromPoints(innerCurvePts);
+  const innerLoop = new THREE.LineLoop(
+    innerGeo,
+    new THREE.LineBasicMaterial({ color: 0xE8E8E6, transparent: true, opacity: 0.3 })
+  );
+  group.add(innerLoop);
+
+  group.rotation.x = -0.1;
+  group.rotation.y = 0.65;
 
   let mouseX = 0, mouseY = 0;
   window.addEventListener('mousemove', (e) => {
@@ -1568,13 +1581,13 @@ renderPapers();
 
   function animate() {
     requestAnimationFrame(animate);
-    group.rotation.y += 0.0016;
-    group.rotation.x += ((-0.15 + mouseY * 0.18) - group.rotation.x) * 0.02;
+    group.rotation.y += 0.0014;
+    group.rotation.x += ((-0.1 + mouseY * 0.15) - group.rotation.x) * 0.02;
 
     const t = Date.now() * 0.001;
-    [left, right].forEach((hemi, hi) => {
-      const pts = hemi.children[1];
-      pts.material.opacity = 0.55 + Math.sin(t * 0.8 + hi) * 0.2;
+    [cerebrum, cerebellum].forEach((part, i) => {
+      const pts = part.children[1];
+      pts.material.opacity = 0.5 + Math.sin(t * 0.8 + i) * 0.2;
     });
 
     renderer.render(scene, camera);
